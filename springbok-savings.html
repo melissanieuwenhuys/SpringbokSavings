@@ -200,6 +200,42 @@
     .neg { color: var(--red); }
     .gold-text { color: var(--gold); }
 
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      nav { padding: 0 12px; height: auto; flex-wrap: wrap; gap: 0; }
+      .nav-logo { font-size: 16px; padding: 12px 0; flex: 1 1 100%; border-bottom: 1px solid var(--border); }
+      .nav-tabs { width: 100%; overflow-x: auto; padding: 6px 0; gap: 4px; flex-shrink: 0; -webkit-overflow-scrolling: touch; }
+      .nav-tab { padding: 6px 12px; font-size: 12px; white-space: nowrap; }
+      .nav-actions { gap: 6px; padding: 6px 0; }
+      .nav-actions .btn { padding: 6px 10px; font-size: 12px; }
+      main { padding: 14px 12px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-card { padding: 14px 14px; }
+      .stat-card .value { font-size: 20px; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .card { padding: 16px; }
+      .section-title { font-size: 15px; }
+      table { font-size: 12px; }
+      th, td { padding: 8px 10px; }
+      .modal { padding: 20px 16px; margin: 12px; max-width: calc(100vw - 24px); }
+      .modal-footer { flex-direction: column; }
+      .modal-footer .btn { width: 100%; justify-content: center; }
+      .form-grid { grid-template-columns: 1fr; }
+      .member-grid { grid-template-columns: 1fr; }
+      .member-stats { grid-template-columns: 1fr 1fr; }
+      #toast { bottom: 12px; right: 12px; left: 12px; min-width: unset; font-size: 13px; }
+      .btn { font-size: 13px; }
+      .section-header { flex-wrap: wrap; gap: 10px; }
+      .hiw-steps { grid-template-columns: 1fr; }
+      .hiw-pot-box { flex-direction: column; align-items: flex-start; }
+      /* Stokvel rotation table — hide lower-priority columns on small screens */
+      .stokvel-table th:nth-child(5),
+      .stokvel-table td:nth-child(5) { display: none; }
+    }
+    @media (max-width: 400px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
     select option { background: var(--bg2); }
     .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
@@ -360,7 +396,7 @@
     <button class="nav-tab admin-only" onclick="showPage('reconcile')">🔄 Reconcile</button>
     <button class="nav-tab" onclick="showPage('bank-records')">🏦 Bank Records</button>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;margin-left:12px">
+  <div class="nav-actions" style="display:flex;align-items:center;gap:10px;margin-left:12px">
     <span id="nav-user" style="font-size:13px;color:var(--text2)"></span>
     <button class="btn btn-ghost btn-sm" onclick="openInfoModal()">ℹ️ Scheme Info</button>
     <button class="btn btn-ghost btn-sm" id="nav-account-btn" onclick="openAccountModal()">🔑 Account</button>
@@ -439,7 +475,7 @@
       <!-- Monthly Deposit -->
       <div class="card">
         <div class="section-title" style="margin-bottom:16px">💰 Monthly Deposit</div>
-        <div class="info-box">Each member contributes their agreed monthly amount. Each cycle, one member receives the <strong>full combined pot</strong> — the total of all contributions. Members rotate in order of join date.</div>
+        <div class="info-box">Each member contributes their agreed monthly amount. Deposits cannot exceed the agreed monthly contribution. Each cycle, one member receives the <strong>full combined pot</strong> — the total of all contributions. Members rotate in order of join date.</div>
         <div class="form-grid">
           <div class="form-group full">
             <label>Member</label>
@@ -466,7 +502,7 @@
       <!-- Emergency Withdrawal -->
       <div class="card">
         <div class="section-title" style="margin-bottom:16px">🚨 Emergency Withdrawal</div>
-        <div class="info-box">Max withdrawal = amount deposited this month. Member must settle amount owed PLUS next month's contribution.</div>
+        <div class="info-box">Max withdrawal = amount deposited this month. Member must settle amount owed PLUS next month's contribution. <strong>Repaying in the same month clears the next month's obligation.</strong></div>
         <div class="form-grid">
           <div class="form-group full">
             <label>Member</label>
@@ -768,7 +804,7 @@
 
 <!-- Change Password -->
 <div class="modal-overlay" id="modal-change-pw">
-  <div class="modal" style="max-width:400px">
+  <div class="modal" style="max-width:420px">
     <div class="modal-header">
       <div class="modal-title">🔑 Change Password</div>
       <button class="modal-close" onclick="closeModal('modal-change-pw')">×</button>
@@ -780,7 +816,17 @@
       </div>
       <div class="form-group full">
         <label>New Password</label>
-        <input type="password" id="pw-new" placeholder="New password (min 8 chars)" autocomplete="new-password" />
+        <input type="password" id="pw-new" placeholder="Min 8 chars, upper, lower, number & symbol" autocomplete="new-password" oninput="updatePwStrength()" />
+        <div id="pw-strength-bar" style="margin-top:6px;display:none">
+          <div style="display:flex;gap:4px;margin-bottom:4px">
+            <div id="pws-1" style="height:4px;flex:1;border-radius:4px;background:var(--border)"></div>
+            <div id="pws-2" style="height:4px;flex:1;border-radius:4px;background:var(--border)"></div>
+            <div id="pws-3" style="height:4px;flex:1;border-radius:4px;background:var(--border)"></div>
+            <div id="pws-4" style="height:4px;flex:1;border-radius:4px;background:var(--border)"></div>
+          </div>
+          <div id="pw-strength-label" style="font-size:12px;color:var(--text2)"></div>
+          <ul id="pw-rules" style="font-size:12px;color:var(--text2);padding-left:16px;margin-top:6px;line-height:1.9"></ul>
+        </div>
       </div>
       <div class="form-group full">
         <label>Confirm New Password</label>
@@ -1047,14 +1093,49 @@ function doLogout() {
   document.getElementById('login-password').value = '';
 }
 
+function pwStrengthScore(pw) {
+  const rules = [
+    { re: /.{8,}/,          label: 'At least 8 characters' },
+    { re: /[A-Z]/,          label: 'At least one uppercase letter (A–Z)' },
+    { re: /[a-z]/,          label: 'At least one lowercase letter (a–z)' },
+    { re: /[0-9]/,          label: 'At least one number (0–9)' },
+    { re: /[^A-Za-z0-9]/,  label: 'At least one special character (!@#$…)' },
+  ];
+  return rules.map(r => ({ ...r, passed: r.re.test(pw) }));
+}
+
+function updatePwStrength() {
+  const pw = document.getElementById('pw-new').value;
+  const bar = document.getElementById('pw-strength-bar');
+  if (!pw) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  const results = pwStrengthScore(pw);
+  const score = results.filter(r => r.passed).length;
+  const colors = ['', 'var(--red)', 'var(--red)', 'var(--gold)', 'var(--gold)', 'var(--green)'];
+  const labels = ['', 'Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('pws-' + i).style.background = i <= Math.ceil(score * 4 / 5) ? colors[score] : 'var(--border)';
+  }
+  document.getElementById('pw-strength-label').innerHTML =
+    `<span style="color:${colors[score]};font-weight:700">${labels[score]}</span>`;
+  document.getElementById('pw-rules').innerHTML = results.map(r =>
+    `<li style="color:${r.passed ? 'var(--green)' : 'var(--red)'}">${r.passed ? '✓' : '✗'} ${r.label}</li>`
+  ).join('');
+}
+
 function changePassword() {
   const cur = document.getElementById('pw-current').value;
   const nw  = document.getElementById('pw-new').value;
   const cnf = document.getElementById('pw-confirm').value;
   const errEl = document.getElementById('pw-error');
   errEl.textContent = '';
-  if (nw.length < 8) {
-    errEl.textContent = 'New password must be at least 8 characters.'; return;
+  // Strong password: all 5 rules must pass
+  const results = pwStrengthScore(nw);
+  const failed = results.filter(r => !r.passed);
+  if (failed.length > 0) {
+    errEl.textContent = 'Password too weak: ' + failed[0].label.toLowerCase() + '.';
+    updatePwStrength();
+    return;
   }
   if (nw !== cnf) {
     errEl.textContent = 'Passwords do not match.'; return;
@@ -1070,6 +1151,7 @@ function changePassword() {
     if (!match) { errEl.textContent = 'Current password is incorrect.'; return; }
     saveCreds({ username: creds.username, password: await hashSecret(nw, creds.username), hashed: true });
     ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pw-strength-bar').style.display = 'none';
     closeModal('modal-change-pw');
     showToast('Password updated successfully ✓', 'success');
   })();
@@ -1224,6 +1306,7 @@ function openAccountModal() {
   } else {
     ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('pw-error').textContent = '';
+    document.getElementById('pw-strength-bar').style.display = 'none';
     openModal('modal-change-pw');
   }
 }
@@ -1343,11 +1426,13 @@ function shortPaymentDebt(memberId) {
   return shortfall;
 }
 
-/** Outstanding debt (emergency taken – settled + short payments) */
+/** Outstanding debt (emergency taken + short payments – all settlements) */
 function outstandingDebt(memberId) {
   const emg = memberTx(memberId).filter(t => t.type === 'emergency').reduce((s, t) => s + t.amount, 0);
   const set = memberTx(memberId).filter(t => t.type === 'settlement').reduce((s, t) => s + t.amount, 0);
-  return Math.max(0, emg - set) + shortPaymentDebt(memberId);
+  const short = shortPaymentDebt(memberId);
+  // Settlements offset both emergency debt and short payment debt
+  return Math.max(0, emg + short - set);
 }
 
 /** Number of completed deposit months (for payout tracking) */
@@ -1486,16 +1571,28 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
 
-// Set today's date on all date inputs
+// Set today's date on all date inputs and enforce max=today (no future dating)
 function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0];
   const firstOfMonth = today.slice(0, 8) + '01';
   ['dep-date','emg-date','set-date','new-member-date'].forEach(id => {
     const el = document.getElementById(id);
-    if (el && !el.value) el.value = today;
+    if (el) {
+      el.max = today;
+      if (!el.value) el.value = today;
+    }
   });
   const payDateEl = document.getElementById('pay-date');
-  if (payDateEl && !payDateEl.value) payDateEl.value = firstOfMonth;
+  if (payDateEl) {
+    payDateEl.max = today;
+    if (!payDateEl.value) payDateEl.value = firstOfMonth;
+  }
+}
+
+function isFutureDate(dateStr) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(dateStr) > today;
 }
 
 // ═══════════════════════════════════════
@@ -1728,7 +1825,11 @@ function recordDeposit() {
   const notes = document.getElementById('dep-notes').value.trim();
   if (!memberId) return showToast('Select a member', 'error');
   if (!date) return showToast('Select a date', 'error');
+  if (isFutureDate(date)) return showToast('Payment date cannot be in the future', 'error');
   if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
+  const m = getMemberById(memberId);
+  const maxContrib = m.monthlyContribution || 500;
+  if (amount > maxContrib) return showToast(`Deposit cannot exceed the agreed monthly contribution of ${fmt(maxContrib)}`, 'error');
   db.transactions.push({ id: uid(), memberId, type: 'deposit', amount, date, notes });
   save(db);
   document.getElementById('dep-notes').value = '';
@@ -1744,6 +1845,7 @@ function recordEmergency() {
   const notes = document.getElementById('emg-notes').value.trim();
   if (!memberId) return showToast('Select a member', 'error');
   if (!date) return showToast('Select a date', 'error');
+  if (isFutureDate(date)) return showToast('Payment date cannot be in the future', 'error');
   if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
 
   const maxAllowed = depositedThisMonth(memberId);
@@ -1771,13 +1873,27 @@ function recordSettlement() {
   const notes = document.getElementById('set-notes').value.trim();
   if (!memberId) return showToast('Select a member', 'error');
   if (!date) return showToast('Select a date', 'error');
+  if (isFutureDate(date)) return showToast('Payment date cannot be in the future', 'error');
   if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
+
+  // Detect same-month emergency repayment
+  const settleDate = new Date(date);
+  const sameMonthEmergency = memberTx(memberId).some(t => {
+    if (t.type !== 'emergency') return false;
+    const d = new Date(t.date);
+    return d.getFullYear() === settleDate.getFullYear() && d.getMonth() === settleDate.getMonth();
+  });
 
   db.transactions.push({ id: uid(), memberId, type: 'settlement', amount, date, notes });
   save(db);
   document.getElementById('set-amount').value = '';
   document.getElementById('set-notes').value = '';
-  showToast(`Settlement of ${fmt(amount)} recorded ✓`, 'success');
+  const debtAfter = outstandingDebt(memberId);
+  if (sameMonthEmergency && debtAfter === 0) {
+    showToast(`Settlement of ${fmt(amount)} recorded ✓ — Emergency repaid in the same month. No additional obligation next month.`, 'success');
+  } else {
+    showToast(`Settlement of ${fmt(amount)} recorded ✓`, 'success');
+  }
   updateSettlementInfo();
 }
 
@@ -1788,6 +1904,7 @@ function recordPayout() {
   const notes = document.getElementById('pay-notes').value.trim();
   if (!memberId) return showToast('Select a member', 'error');
   if (!date) return showToast('Select a date', 'error');
+  if (isFutureDate(date)) return showToast('Payment date cannot be in the future', 'error');
   if (new Date(date).getUTCDate() !== 1) return showToast('Payouts must be issued on the 1st of the month', 'error');
   if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
 
@@ -2084,7 +2201,7 @@ function renderDashboard() {
           <div style="font-size:16px;font-weight:800;color:var(--text)">${ranked[0].name}</div>
         </div>
       </div>
-      <div style="overflow-x:auto"><table>
+      <div style="overflow-x:auto"><table class="stokvel-table">
         <thead><tr><th>Member</th><th>Agreed/mo</th><th>Paid This Month</th><th>Status</th><th>Next Month Owing</th><th>History</th><th>Rotation</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
