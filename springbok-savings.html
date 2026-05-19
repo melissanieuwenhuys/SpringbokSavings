@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Springbok Family Savings Scheme</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦌</text></svg>" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d27;
+      --bg3: #232736;
+      --border: #2e3348;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --accent3: #ff6b6b;
+      --accent4: #ffd166;
+      --text: #e8eaf6;
+      --text2: #9ba3c4;
+      --green: #00d4aa;
+      --red: #ff6b6b;
+      --gold: #ffd166;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 64px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; flex: 1; }
+    .nav-logo span { color: var(--accent2); }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab {
+      padding: 8px 18px; border-radius: 8px; border: none;
+      background: transparent; color: var(--text2); cursor: pointer;
+      font-size: 14px; font-weight: 500; transition: all .2s;
+    }
+    .nav-tab:hover { background: var(--bg3); color: var(--text); }
+    .nav-tab.active { background: var(--accent); color: #fff; }
+
+    /* ── LAYOUT ── */
+    main { max-width: 1280px; margin: 0 auto; padding: 28px 20px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);
+    }
+    .card-title { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+    .card-value { font-size: 32px; font-weight: 800; }
+    .card-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+    /* ── DASHBOARD GRID ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 22px;
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent-color, var(--accent));
+    }
+    .stat-card .icon { font-size: 28px; margin-bottom: 10px; }
+    .stat-card .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--text2); }
+    .stat-card .value { font-size: 28px; font-weight: 800; margin-top: 4px; color: var(--accent-color, var(--text)); }
+    .stat-card .sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .grid3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media(max-width: 768px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; color: var(--text2); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg3); }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .badge-green { background: rgba(0,212,170,.15); color: var(--green); }
+    .badge-red   { background: rgba(255,107,107,.15); color: var(--red); }
+    .badge-gold  { background: rgba(255,209,102,.15); color: var(--gold); }
+    .badge-blue  { background: rgba(108,99,255,.15); color: var(--accent); }
+
+    /* ── FORMS ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 13px; font-weight: 600; color: var(--text2); }
+    input, select, textarea {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; color: var(--text);
+      font-size: 14px; outline: none; transition: border .2s;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 70px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: 10px 20px; border-radius: 8px; border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #574fd6; }
+    .btn-success { background: var(--green); color: #000; }
+    .btn-success:hover { background: #00b894; }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #e05555; }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-gold:hover { background: #e6b800; }
+    .btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.7); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px; width: 100%; max-width: 520px;
+      box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-title { font-size: 18px; font-weight: 700; }
+    .modal-close { background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .modal-footer { margin-top: 24px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── SECTION HEADERS ── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 18px; font-weight: 700; }
+
+    /* ── MEMBER CARDS ── */
+    .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .member-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; transition: border .2s;
+    }
+    .member-card:hover { border-color: var(--accent); }
+    .member-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 12px;
+    }
+    .member-name { font-size: 16px; font-weight: 700; }
+    .member-joined { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .member-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .member-stat { background: var(--bg3); border-radius: 8px; padding: 10px 12px; }
+    .member-stat .ms-label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; }
+    .member-stat .ms-value { font-size: 16px; font-weight: 700; margin-top: 2px; }
+    .member-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+    /* ── ALERTS / TOASTS ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 20px; min-width: 260px;
+      box-shadow: var(--shadow); transform: translateY(80px); opacity: 0;
+      transition: all .3s; font-size: 14px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid var(--green); }
+    #toast.error   { border-left: 4px solid var(--red); }
+    #toast.info    { border-left: 4px solid var(--accent); }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { background: var(--bg3); border-radius: 20px; height: 8px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 20px; transition: width .4s; }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--text2); }
+    .empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty p { font-size: 15px; }
+
+    /* ── AMOUNT COLORS ── */
+    .pos { color: var(--green); }
+    .neg { color: var(--red); }
+    .gold-text { color: var(--gold); }
+
+    select option { background: var(--bg2); }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    .info-box {
+      background: rgba(108,99,255,.1); border: 1px solid rgba(108,99,255,.3);
+      border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--text2); margin-bottom: 16px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .hiw-section {
+      background: linear-gradient(135deg, rgba(108,99,255,.08), rgba(0,212,170,.05));
+      border: 1px solid rgba(108,99,255,.25);
+      border-radius: var(--radius); padding: 22px 24px; margin-bottom: 24px;
+    }
+    .hiw-title {
+      font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hiw-steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;
+      margin-bottom: 18px;
+    }
+    .hiw-step {
+      background: var(--bg3); border-radius: 10px; padding: 14px 16px;
+      border-left: 3px solid var(--accent);
+    }
+    .hiw-step-num { font-size: 11px; font-weight: 700; color: var(--accent2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .hiw-step-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .hiw-step-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .hiw-pot-box {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      background: rgba(255,209,102,.07); border: 1px solid rgba(255,209,102,.3);
+      border-radius: 10px; padding: 14px 18px;
+    }
+    .hiw-pot-label { font-size: 12px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .hiw-pot-value { font-size: 22px; font-weight: 800; color: var(--gold); }
+    .hiw-your-turn {
+      background: rgba(0,212,170,.08); border: 1px solid rgba(0,212,170,.3);
+      border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--green); font-weight: 600;
+    }
+    .hiw-rotation-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
+    }
+    .hiw-rotation-pill {
+      display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+      border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hiw-rotation-pill.active {
+      background: rgba(255,209,102,.15); border-color: var(--gold); color: var(--gold);
+    }
+    .hiw-rotation-pill.me {
+      background: rgba(108,99,255,.18); border-color: var(--accent); color: var(--accent);
+    }
+
+    /* ── MEMBER RULES NOTICE ── */
+    .rules-notice {
+      background: rgba(255,209,102,.07); border: 1px solid rgba(255,209,102,.35);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 24px;
+    }
+    .rules-notice .rn-title {
+      font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .rules-notice ul { padding-left: 18px; list-style: disc; }
+    .rules-notice li { font-size: 13px; color: var(--text2); line-height: 1.8; }
+    .rules-notice li strong { color: var(--text); }
+    .rules-notice .suspension-warning {
+      margin-top: 12px; padding: 10px 14px;
+      background: rgba(255,107,107,.12); border: 1px solid rgba(255,107,107,.3);
+      border-radius: 8px; font-size: 13px; color: var(--red); font-weight: 600;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      align-items: center; justify-content: center;
+    }
+    #login-screen.visible { display: flex; }
+    .login-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6); text-align: center;
+    }
+    .login-logo { font-size: 40px; margin-bottom: 8px; }
+    .login-title { font-size: 22px; font-weight: 800; color: var(--text); }
+    .login-sub { font-size: 13px; color: var(--text2); margin-top: 4px; margin-bottom: 32px; }
+    .login-box .form-group { text-align: left; margin-bottom: 14px; }
+    .login-box input { width: 100%; }
+    .login-error {
+      color: var(--red); font-size: 13px; margin-top: 8px;
+      min-height: 20px; display: block;
+    }
+    .login-btn {
+      width: 100%; padding: 12px; margin-top: 8px;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .2s;
+    }
+    .login-btn:hover { background: #574fd6; }
+    .login-hint { font-size: 11px; color: var(--text2); margin-top: 20px; }
+    nav { display: none; }
+    nav.authed { display: flex; }
+    main { display: none; }
+    main.authed { display: block; }
+
+    /* ── RECONCILE ── */
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 48px 24px; text-align: center; cursor: pointer; transition: all .2s;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(108,99,255,.06); }
+    .upload-zone .uz-icon { font-size: 40px; margin-bottom: 10px; }
+    .upload-zone p { color: var(--text2); font-size: 14px; }
+    .upload-zone strong { color: var(--text); }
+    .chip { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700; }
+    .chip-green { background:rgba(0,212,170,.15);color:var(--green); }
+    .chip-red   { background:rgba(255,107,107,.15);color:var(--red); }
+    .chip-gold  { background:rgba(255,209,102,.15);color:var(--gold); }
+    .chip-grey  { background:var(--bg3);color:var(--text2); }
+    .recon-summary-bar {
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+      background:var(--bg3);border-radius:10px;padding:14px 18px;margin-bottom:16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="visible">
+  <div class="login-box">
+    <div class="login-logo">🦌</div>
+    <div class="login-title">Springbok Savings</div>
+    <div class="login-sub">Admin access required</div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="admin" autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <span class="login-error" id="login-error"></span>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-hint">Contact the scheme administrator if you have forgotten your credentials.</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🦌 Spring<span>bok</span> Savings</div>
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
+    <button class="nav-tab admin-only" onclick="showPage('members')">👥 Members</button>
+    <button class="nav-tab admin-only" onclick="showPage('payments')">💳 Payments</button>
+    <button class="nav-tab admin-only" onclick="showPage('transactions')">📋 History</button>
+    <button class="nav-tab admin-only" onclick="showPage('reconcile')">🔄 Reconcile</button>
+    <button class="nav-tab" onclick="showPage('bank-records')">🏦 Bank Records</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin-left:12px">
+    <span id="nav-user" style="font-size:13px;color:var(--text2)"></span>
+    <button class="btn btn-ghost btn-sm" onclick="openInfoModal()">ℹ️ Scheme Info</button>
+    <button class="btn btn-ghost btn-sm" id="nav-account-btn" onclick="openAccountModal()">🔑 Account</button>
+    <button class="btn btn-danger btn-sm" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ══════════════ DASHBOARD ══════════════ -->
+  <div id="page-dashboard" class="page active">
+    <div style="margin-bottom:20px">
+      <h1 style="font-size:24px;font-weight:800">Dashboard</h1>
+      <p style="color:var(--text2);margin-top:4px">Overview of the Springbok Family Savings Scheme</p>
+    </div>
+
+    <div class="stats-grid" id="dash-stats"></div>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="section-header" style="margin-bottom:16px">
+          <span class="section-title" style="font-size:15px">Monthly Contributions</span>
+        </div>
+        <canvas id="chartContributions" height="120"></canvas>
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:15px;margin-bottom:16px">Fund Breakdown</div>
+        <canvas id="chartBreakdown" height="180"></canvas>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="section-title" style="font-size:15px;margin-bottom:16px">🔄 Stokvel Rotation Overview</div>
+      <div id="dash-stokvel"></div>
+    </div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="card">
+        <div class="section-title" style="font-size:15px;margin-bottom:16px">👑 Next Payouts</div>
+        <div id="dash-payouts"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:15px;margin-bottom:16px">⚠️ Members With Outstanding Debt</div>
+        <div id="dash-debts"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="section-title" style="font-size:15px;margin-bottom:16px">📈 Member Balances</div>
+      <div id="dash-member-balances"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MEMBERS ══════════════ -->
+  <div id="page-members" class="page">
+    <div class="section-header">
+      <div>
+        <h1 style="font-size:24px;font-weight:800">Members</h1>
+        <p style="color:var(--text2);margin-top:4px">Manage family members in the scheme</p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddMemberModal()">+ Add Member</button>
+    </div>
+    <div class="member-grid" id="member-grid"></div>
+  </div>
+
+  <!-- ══════════════ PAYMENTS ══════════════ -->
+  <div id="page-payments" class="page">
+    <div class="section-header">
+      <div>
+        <h1 style="font-size:24px;font-weight:800">Record Payment</h1>
+        <p style="color:var(--text2);margin-top:4px">Capture monthly deposits, emergencies & settlements</p>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <!-- Monthly Deposit -->
+      <div class="card">
+        <div class="section-title" style="margin-bottom:16px">💰 Monthly Deposit</div>
+        <div class="info-box">Each member contributes their agreed monthly amount. Each cycle, one member receives the <strong>full combined pot</strong> — the total of all contributions. Members rotate in order of join date.</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Member</label>
+            <select id="dep-member" onchange="prefillDepositAmount()"></select>
+          </div>
+          <div class="form-group">
+            <label>Payment Date</label>
+            <input type="date" id="dep-date" />
+          </div>
+          <div class="form-group">
+            <label>Amount (R)</label>
+            <input type="number" id="dep-amount" value="500" min="1" />
+          </div>
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="dep-notes" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-success" onclick="recordDeposit()">✓ Record Deposit</button>
+        </div>
+      </div>
+
+      <!-- Emergency Withdrawal -->
+      <div class="card">
+        <div class="section-title" style="margin-bottom:16px">🚨 Emergency Withdrawal</div>
+        <div class="info-box">Max withdrawal = amount deposited this month. Member must settle amount owed PLUS next month's contribution.</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Member</label>
+            <select id="emg-member" onchange="updateEmergencyInfo()"></select>
+          </div>
+          <div class="form-group full" id="emg-info-box" style="display:none">
+            <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px">
+              <div>Deposited this month: <strong id="emg-deposited" class="pos">R0</strong></div>
+              <div style="margin-top:4px">Max withdrawal: <strong id="emg-max" class="gold-text">R0</strong></div>
+              <div style="margin-top:4px">Current debt: <strong id="emg-debt" class="neg">R0</strong></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Withdrawal Date</label>
+            <input type="date" id="emg-date" />
+          </div>
+          <div class="form-group">
+            <label>Amount (R)</label>
+            <input type="number" id="emg-amount" min="1" placeholder="Max = deposited this month" />
+          </div>
+          <div class="form-group full">
+            <label>Reason</label>
+            <textarea id="emg-notes" placeholder="Reason for emergency withdrawal..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-danger" onclick="recordEmergency()">⚡ Record Emergency</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:0">
+      <!-- Settlement -->
+      <div class="card">
+        <div class="section-title" style="margin-bottom:16px">✅ Settle Debt</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Member</label>
+            <select id="set-member" onchange="updateSettlementInfo()"></select>
+          </div>
+          <div class="form-group full" id="set-info-box" style="display:none">
+            <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px">
+              Amount owed: <strong id="set-owed" class="neg">R0</strong>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Settlement Date</label>
+            <input type="date" id="set-date" />
+          </div>
+          <div class="form-group">
+            <label>Amount (R)</label>
+            <input type="number" id="set-amount" min="1" placeholder="Amount settling" />
+          </div>
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="set-notes" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-primary" onclick="recordSettlement()">💳 Record Settlement</button>
+        </div>
+      </div>
+
+      <!-- Payout -->
+      <div class="card">
+        <div class="section-title" style="margin-bottom:16px">🏆 Issue Stokvel Payout</div>
+        <div class="info-box">The stokvel pot is the combined total of <strong>all members' monthly contributions</strong>. It is paid to the next member in the rotation queue. The amount is auto-filled.</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Member</label>
+            <select id="pay-member" onchange="prefillPayoutAmount()"></select>
+          </div>
+          <div class="form-group">
+            <label>Payout Date</label>
+            <input type="date" id="pay-date" onchange="prefillPayoutAmount()" />
+          </div>
+          <div class="form-group">
+            <label>Amount (R)</label>
+            <input type="number" id="pay-amount" value="" min="1" placeholder="Auto-filled on member select" />
+          </div>
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="pay-notes" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-gold" onclick="recordPayout()">🏅 Issue Payout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ HISTORY ══════════════ -->
+  <div id="page-transactions" class="page">
+    <div class="section-header">
+      <div>
+        <h1 style="font-size:24px;font-weight:800">Transaction History</h1>
+        <p style="color:var(--text2);margin-top:4px">View and delete deposits, withdrawals &amp; payouts</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="filter-member" onchange="renderHistory()" style="width:160px">
+          <option value="">All Members</option>
+        </select>
+        <select id="filter-type" onchange="renderHistory()">
+          <option value="">All Types</option>
+          <option value="deposit">Deposits</option>
+          <option value="emergency">Emergencies</option>
+          <option value="settlement">Settlements</option>
+          <option value="payout">Payouts</option>
+        </select>
+        <button class="btn btn-danger btn-sm" id="bulk-delete-btn" onclick="bulkDeleteSelected()" style="display:none">🗑 Delete Selected</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32px"><input type="checkbox" id="select-all-tx" onchange="toggleSelectAllTx(this.checked)" title="Select all"></th>
+              <th>Date</th>
+              <th>Member</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </div>
+      <div id="history-empty" class="empty" style="display:none">
+        <div class="empty-icon">📭</div>
+        <p>No transactions yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ RECONCILE ══════════════ -->
+  <div id="page-reconcile" class="page">
+    <div class="section-header">
+      <div>
+        <h1 style="font-size:24px;font-weight:800">Bank Statement Reconciliation</h1>
+        <p style="color:var(--text2);margin-top:4px">Upload a bank statement to match deposits and withdrawals against recorded transactions</p>
+      </div>
+      <button class="btn btn-ghost" id="recon-reset-btn" onclick="resetRecon()" style="display:none">↩ Start Over</button>
+    </div>
+
+    <!-- Step 1: Upload -->
+    <div id="recon-step-upload">
+      <div class="grid2">
+        <div class="card">
+          <div class="section-title" style="margin-bottom:16px">📂 Upload CSV File</div>
+          <div class="upload-zone" id="recon-drop-zone" onclick="document.getElementById('recon-file').click()"
+               ondragover="event.preventDefault();this.classList.add('dragover')"
+               ondragleave="this.classList.remove('dragover')"
+               ondrop="this.classList.remove('dragover');handleReconFile(event.dataTransfer.files[0])">
+            <div class="uz-icon">📄</div>
+            <p><strong>Click to choose</strong> or drag & drop a CSV file</p>
+            <p style="margin-top:6px;font-size:12px">Supports FNB, Standard Bank, Capitec, Nedbank CSV exports</p>
+          </div>
+          <input type="file" id="recon-file" accept=".csv,.txt" style="display:none"
+                 onchange="handleReconFile(this.files[0])" />
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-bottom:16px">📋 Paste CSV / Text</div>
+          <textarea id="recon-paste" style="width:100%;height:150px;font-family:monospace;font-size:12px" placeholder="Paste your bank statement CSV here...&#10;&#10;Example:&#10;Date,Description,Debit,Credit,Balance&#10;2026-05-01,PAYMENT FROM THABO,,500.00,5000.00"></textarea>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" onclick="processReconText(document.getElementById('recon-paste').value)">Parse Statement</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0">
+        <div class="section-title" style="margin-bottom:12px;font-size:14px">💡 Tips</div>
+        <ul style="color:var(--text2);font-size:13px;line-height:2;padding-left:18px">
+          <li>Export your bank statement as CSV from your bank's online portal or app.</li>
+          <li>The app auto-detects date, description, debit/credit columns — you can adjust them in the next step.</li>
+          <li>Transactions are matched by <strong>amount</strong> and <strong>date (±3 days)</strong> against recorded scheme transactions.</li>
+          <li>Unmatched entries can be linked to a member and optionally imported as new transactions.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Step 2: Column Mapping -->
+    <div id="recon-step-map" style="display:none">
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-header" style="margin-bottom:16px">
+          <div class="section-title">🗂 Map Columns</div>
+          <button class="btn btn-ghost btn-sm" onclick="showReconStep('upload')">← Back</button>
+        </div>
+        <div class="info-box">Check that each column is correctly identified, then click <strong>Run Reconciliation</strong>.</div>
+        <div id="recon-col-mapper"></div>
+        <div style="margin-top:20px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="applyColumnMapping()">▶ Run Reconciliation</button>
+          <button class="btn btn-ghost" onclick="showReconStep('upload')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Results -->
+    <div id="recon-step-results" style="display:none">
+      <div class="recon-summary-bar" id="recon-summary"></div>
+      <!-- Save session panel -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title" style="font-size:14px;margin-bottom:12px">💾 Publish to Bank Records</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Save this statement so all members can view it in the <strong>Bank Records</strong> tab for full transparency.</p>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:200px">
+            <label>Session Label</label>
+            <input type="text" id="recon-save-label" placeholder="e.g. May 2026 – FNB Cheque Account" />
+          </div>
+          <button class="btn btn-success" onclick="saveReconSession()">📌 Save &amp; Publish</button>
+        </div>
+        <div id="recon-save-msg" style="font-size:13px;margin-top:10px;min-height:18px"></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recon-tbody"></tbody>
+          </table>
+        </div>
+        <div id="recon-empty" class="empty" style="display:none">
+          <div class="empty-icon">🔍</div>
+          <p>No rows to display.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ BANK RECORDS ══════════════ -->
+  <div id="page-bank-records" class="page">
+    <div class="section-header">
+      <div>
+        <h1 style="font-size:24px;font-weight:800">🏦 Bank Records</h1>
+        <p style="color:var(--text2);margin-top:4px">Published bank statement entries — visible to all members for full transparency</p>
+      </div>
+      <button class="btn btn-ghost btn-sm admin-only" onclick="deleteAllBankRecords()" style="color:var(--red)">🗑 Clear All</button>
+    </div>
+    <div id="bank-records-list"></div>
+  </div>
+
+</main>
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Add Member -->
+<div class="modal-overlay" id="modal-add-member">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Member</div>
+      <button class="modal-close" onclick="closeModal('modal-add-member')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Full Name</label>
+        <input type="text" id="new-member-name" placeholder="e.g. Thabo Nkosi" />
+      </div>
+      <div class="form-group">
+        <label>Join Date</label>
+        <input type="date" id="new-member-date" />
+      </div>
+      <div class="form-group">
+        <label>Monthly Contribution (R)</label>
+        <input type="number" id="new-member-contribution" value="500" min="1" placeholder="e.g. 500" />
+      </div>
+      <div class="form-group">
+        <label>Monthly Payment Day</label>
+        <select id="new-member-payday"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-member')">Cancel</button>
+      <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member Detail -->
+<div class="modal-overlay" id="modal-member-detail">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-name"></div>
+      <button class="modal-close" onclick="closeModal('modal-member-detail')">×</button>
+    </div>
+    <div id="detail-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-member-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div class="modal-overlay" id="modal-change-pw">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">🔑 Change Password</div>
+      <button class="modal-close" onclick="closeModal('modal-change-pw')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Current Password</label>
+        <input type="password" id="pw-current" placeholder="Current password" autocomplete="current-password" />
+      </div>
+      <div class="form-group full">
+        <label>New Password</label>
+        <input type="password" id="pw-new" placeholder="New password (min 8 chars)" autocomplete="new-password" />
+      </div>
+      <div class="form-group full">
+        <label>Confirm New Password</label>
+        <input type="password" id="pw-confirm" placeholder="Repeat new password" autocomplete="new-password" />
+      </div>
+    </div>
+    <span class="login-error" id="pw-error" style="margin-top:8px"></span>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-change-pw')">Cancel</button>
+      <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member Account Settings (for logged-in members) -->
+<div class="modal-overlay" id="modal-member-account">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">👤 Account Settings</div>
+      <button class="modal-close" onclick="closeModal('modal-member-account')">×</button>
+    </div>
+    <div class="info-box">Change your login name or PIN. Leave fields blank to keep them unchanged.</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Current PIN (required to save changes)</label>
+        <input type="password" id="ma-current-pin" placeholder="Your current PIN" autocomplete="current-password" />
+      </div>
+      <div class="form-group full">
+        <label>New Username (login name)</label>
+        <input type="text" id="ma-new-name" placeholder="Leave blank to keep current" autocomplete="username" />
+      </div>
+      <div class="form-group full">
+        <label>New PIN</label>
+        <input type="password" id="ma-new-pin" placeholder="Min 6 digits — leave blank to keep current" autocomplete="new-password" />
+      </div>
+      <div class="form-group full">
+        <label>Confirm New PIN</label>
+        <input type="password" id="ma-confirm-pin" placeholder="Repeat new PIN" autocomplete="new-password" />
+      </div>
+    </div>
+    <span class="login-error" id="ma-error" style="margin-top:8px"></span>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-member-account')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMemberAccount()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Member (admin) -->
+<div class="modal-overlay" id="modal-edit-member">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Member</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-member')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Full Name (login username)</label>
+        <input type="text" id="em-name" placeholder="Member name" />
+      </div>
+      <div class="form-group">
+        <label>Monthly Contribution (R)</label>
+        <input type="number" id="em-contribution" value="500" min="1" />
+      </div>
+      <div class="form-group">
+        <label>Monthly Payment Day</label>
+        <select id="em-payday"></select>
+      </div>
+      <div class="form-group full">
+        <label>New PIN <span style="font-weight:400;color:var(--text2)">(leave blank to keep current)</span></label>
+        <input type="password" id="em-pin" placeholder="Min 6 digits" autocomplete="new-password" />
+      </div>
+      <div class="form-group full">
+        <label>Confirm New PIN</label>
+        <input type="password" id="em-pin-confirm" placeholder="Repeat PIN" autocomplete="new-password" />
+      </div>
+    </div>
+    <span class="login-error" id="em-error" style="margin-top:8px"></span>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-member')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditMember()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reconcile Link Modal -->
+<div class="modal-overlay" id="modal-recon-link">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-title">🔗 Link Bank Entry</div>
+      <button class="modal-close" onclick="closeModal('modal-recon-link')">×</button>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:12px 14px;font-size:13px;margin-bottom:18px">
+      <div style="color:var(--text2)">Date: <strong id="rl-date" style="color:var(--text)"></strong></div>
+      <div style="color:var(--text2);margin-top:4px">Description: <strong id="rl-desc" style="color:var(--text)"></strong></div>
+      <div style="color:var(--text2);margin-top:4px">Amount: <strong id="rl-amount" style="color:var(--green)"></strong></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Member</label>
+        <select id="rl-member"></select>
+      </div>
+      <div class="form-group full">
+        <label>Transaction Type</label>
+        <select id="rl-type">
+          <option value="deposit">💰 Deposit</option>
+          <option value="settlement">✅ Settlement</option>
+          <option value="emergency">🚨 Emergency Withdrawal</option>
+          <option value="payout">🏆 Payout</option>
+        </select>
+      </div>
+      <div class="form-group full" style="flex-direction:row;align-items:center;gap:10px">
+        <input type="checkbox" id="rl-create" checked style="width:18px;height:18px;flex-shrink:0" />
+        <label for="rl-create" style="font-size:14px;font-weight:500;color:var(--text)">Also create this as a new scheme transaction</label>
+      </div>
+    </div>
+    <span class="login-error" id="rl-error" style="margin-top:8px"></span>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-recon-link')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveReconLink()">Save Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">Confirm Delete</div>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">×</button>
+    </div>
+    <p style="color:var(--text2);font-size:14px" id="confirm-msg"></p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Info Modal -->
+<div class="modal-overlay" id="modal-info">
+  <div class="modal" style="max-width:680px;max-height:85vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title">ℹ️ Scheme Info</div>
+      <button class="modal-close" onclick="closeModal('modal-info')">×</button>
+    </div>
+    <div id="modal-info-body" style="padding-bottom:8px"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════
+const AUTH_KEY  = 'springbok_auth';   // admin credentials store
+const SESS_KEY  = 'springbok_sess';   // session (sessionStorage)
+
+// currentSession: { role: 'admin'|'member', memberId?: string, name: string }
+let currentSession = null;
+
+// ── Crypto helpers ──
+async function sha256(message) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+// salt prevents cross-user rainbow-table reuse; using stable ID/username as salt
+async function hashSecret(plain, salt) {
+  return sha256(salt.toLowerCase() + ':' + plain);
+}
+
+function loadCreds() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
+}
+function saveCreds(c) { localStorage.setItem(AUTH_KEY, JSON.stringify(c)); }
+
+if (!loadCreds()) {
+  saveCreds({ username: 'admin', password: 'admin123' });
+}
+
+function applySession(sess) {
+  currentSession = sess;
+  sessionStorage.setItem(SESS_KEY, JSON.stringify(sess));
+  document.getElementById('login-screen').classList.remove('visible');
+  document.querySelector('nav').classList.add('authed');
+  document.querySelector('main').classList.add('authed');
+  document.getElementById('nav-user').textContent = '👤 ' + sess.name;
+  // Show/hide admin-only nav items
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = sess.role === 'admin' ? '' : 'none';
+  });
+  // Members only see dashboard
+  if (sess.role === 'member') {
+    showPage('dashboard');
+  } else {
+    renderDashboard();
+  }
+}
+
+function doLogin() {
+  const u = document.getElementById('login-username').value.trim();
+  const p = document.getElementById('login-password').value;
+  document.getElementById('login-error').textContent = '';
+
+  const data = (() => { try { return JSON.parse(localStorage.getItem('springbok_v2')) || { members:[], transactions:[] }; } catch { return { members:[], transactions:[] }; } })();
+
+  (async () => {
+    // ── Admin check ──
+    const creds = loadCreds();
+    if (u.toLowerCase() === creds.username.toLowerCase()) {
+      let match = false;
+      if (creds.hashed) {
+        match = (await hashSecret(p, creds.username)) === creds.password;
+      } else {
+        match = p === creds.password;
+        if (match) {
+          // migrate plain-text admin password to hashed on first successful login
+          saveCreds({ username: creds.username, password: await hashSecret(p, creds.username), hashed: true });
+        }
+      }
+      if (match) {
+        document.getElementById('login-password').value = '';
+        applySession({ role: 'admin', name: creds.username });
+        return;
+      }
+    }
+
+    // ── Member PIN check ──
+    const member = data.members.find(m => m.name.toLowerCase() === u.toLowerCase());
+    if (member && member.pin) {
+      let match = false;
+      if (member.pinHashed) {
+        match = (await hashSecret(p, member.id)) === member.pin;
+      } else {
+        match = p === member.pin;
+        if (match) {
+          // migrate plain-text PIN to hashed
+          member.pin = await hashSecret(p, member.id);
+          member.pinHashed = true;
+          save(data);
+        }
+      }
+      if (match) {
+        document.getElementById('login-password').value = '';
+        applySession({ role: 'member', memberId: member.id, name: member.name });
+        return;
+      }
+    }
+
+    document.getElementById('login-error').textContent = 'Incorrect username or password.';
+    document.getElementById('login-password').value = '';
+  })();
+}
+
+function doLogout() {
+  currentSession = null;
+  sessionStorage.removeItem(SESS_KEY);
+  document.querySelector('nav').classList.remove('authed');
+  document.querySelector('main').classList.remove('authed');
+  document.getElementById('login-screen').classList.add('visible');
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+function changePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw  = document.getElementById('pw-new').value;
+  const cnf = document.getElementById('pw-confirm').value;
+  const errEl = document.getElementById('pw-error');
+  errEl.textContent = '';
+  if (nw.length < 8) {
+    errEl.textContent = 'New password must be at least 8 characters.'; return;
+  }
+  if (nw !== cnf) {
+    errEl.textContent = 'Passwords do not match.'; return;
+  }
+  (async () => {
+    const creds = loadCreds();
+    let match = false;
+    if (creds.hashed) {
+      match = (await hashSecret(cur, creds.username)) === creds.password;
+    } else {
+      match = cur === creds.password;
+    }
+    if (!match) { errEl.textContent = 'Current password is incorrect.'; return; }
+    saveCreds({ username: creds.username, password: await hashSecret(nw, creds.username), hashed: true });
+    ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
+    closeModal('modal-change-pw');
+    showToast('Password updated successfully ✓', 'success');
+  })();
+}
+
+let _editMemberId = null;
+
+function openEditMember(memberId) {
+  _editMemberId = memberId;
+  const m = getMemberById(memberId);
+  document.getElementById('em-name').value = m.name;
+  document.getElementById('em-contribution').value = m.monthlyContribution || 500;
+  document.getElementById('em-payday').innerHTML = buildPaydayOptions(m.paymentDay || null);
+  document.getElementById('em-pin').value = '';
+  document.getElementById('em-pin-confirm').value = '';
+  document.getElementById('em-error').textContent = '';
+  openModal('modal-edit-member');
+}
+
+function saveEditMember() {
+  const m = getMemberById(_editMemberId);
+  const newName = document.getElementById('em-name').value.trim();
+  const newPin  = document.getElementById('em-pin').value;
+  const confirmPin = document.getElementById('em-pin-confirm').value;
+  const errEl = document.getElementById('em-error');
+  errEl.textContent = '';
+  if (!newName) { errEl.textContent = 'Name cannot be empty.'; return; }
+  if (db.members.some(x => x.id !== _editMemberId && x.name.toLowerCase() === newName.toLowerCase())) {
+    errEl.textContent = 'Another member already has that name.'; return;
+  }
+  if (newPin) {
+    if (newPin.length < 6 || !/^\d+$/.test(newPin)) { errEl.textContent = 'PIN must be at least 6 digits (numbers only).'; return; }
+    if (newPin !== confirmPin) { errEl.textContent = 'PINs do not match.'; return; }
+  }
+  const payday       = parseInt(document.getElementById('em-payday').value) || null;
+  const contribution = parseFloat(document.getElementById('em-contribution').value) || 500;
+  if (contribution <= 0) { errEl.textContent = 'Contribution must be greater than R0.'; return; }
+  (async () => {
+    if (newPin) {
+      m.pin = await hashSecret(newPin, m.id);
+      m.pinHashed = true;
+    }
+    m.name = newName;
+    m.paymentDay = payday;
+    m.monthlyContribution = contribution;
+    save(db);
+    closeModal('modal-edit-member');
+    renderMembers();
+    populatePaymentSelects();
+    showToast(`${newName} updated ✓`, 'success');
+  })();
+}
+
+function openInfoModal() {
+  const memberId = currentSession && currentSession.role === 'member' ? currentSession.memberId : null;
+  const m = memberId ? getMemberById(memberId) : null;
+  const pot = expectedPayout();
+  const maxPot = agreedPot();
+  const memberCount = db.members.length;
+
+  // Rotation queue
+  const ranked = [...db.members]
+    .map(m2 => ({ id: m2.id, name: m2.name, count: memberTx(m2.id).filter(t => t.type === 'payout').length, joinDate: m2.joinDate }))
+    .sort((a, b) => a.count - b.count || new Date(a.joinDate) - new Date(b.joinDate));
+  const myPosition = memberId ? ranked.findIndex(r => r.id === memberId) : -1;
+  const rotationPills = ranked.map((r, i) => {
+    const isActive = i === 0;
+    const isMe = r.id === memberId;
+    const cls = isActive ? 'hiw-rotation-pill active' : isMe ? 'hiw-rotation-pill me' : 'hiw-rotation-pill';
+    const label = isActive ? '🎉 ' : isMe ? '👤 ' : `${i + 1}. `;
+    return `<div class="${cls}">${label}${r.name}</div>`;
+  }).join('');
+
+  const positionNote = myPosition < 0 ? '' :
+    myPosition === 0
+      ? `<div class="hiw-your-turn" style="margin-top:14px">🎉 You are <strong>next in the rotation</strong> — you will receive whatever has been collected this month: <strong>${fmt(pot)}</strong> of ${fmt(maxPot)} agreed.</div>`
+      : `<div style="margin-top:14px;font-size:13px;color:var(--text2)">You are <strong style="color:var(--text)">#${myPosition + 1}</strong> in the rotation. ${myPosition} member${myPosition !== 1 ? 's' : ''} will receive the pot before you.</div>`;
+
+  const contribNote = m
+    ? `<div style="text-align:right"><div class="hiw-pot-label">Your Contribution</div><div style="font-size:18px;font-weight:700;color:var(--accent2)">${fmt(m.monthlyContribution || 500)}/mo</div></div>`
+    : '';
+
+  const rulesContrib = m
+    ? `<li><strong>Your monthly contribution:</strong> <strong style="color:var(--text)">${fmt(m.monthlyContribution || 500)}</strong> due each month.</li>`
+    : `<li><strong>Monthly contribution:</strong> Each member pays their agreed amount each month.</li>`;
+
+  document.getElementById('modal-info-body').innerHTML = `
+    <div class="hiw-section" style="margin-bottom:20px">
+      <div class="hiw-title">💡 How the Springbok Stokvel Works</div>
+      <div class="hiw-steps">
+        <div class="hiw-step">
+          <div class="hiw-step-num">Step 1</div>
+          <div class="hiw-step-title">Everyone Contributes</div>
+          <div class="hiw-step-desc">Each member pays their agreed amount into the shared fund every month.</div>
+        </div>
+        <div class="hiw-step" style="border-left-color:var(--gold)">
+          <div class="hiw-step-num">Step 2</div>
+          <div class="hiw-step-title">The Pot Grows</div>
+          <div class="hiw-step-desc">All contributions combine into one pot. The more members, the bigger the pot.</div>
+        </div>
+        <div class="hiw-step" style="border-left-color:var(--green)">
+          <div class="hiw-step-num">Step 3</div>
+          <div class="hiw-step-title">One Member Gets Paid</div>
+          <div class="hiw-step-desc">Each month, one member receives the entire pot. Members rotate so everyone gets a turn.</div>
+        </div>
+        <div class="hiw-step" style="border-left-color:var(--accent2)">
+          <div class="hiw-step-num">Step 4</div>
+          <div class="hiw-step-title">Cycle Repeats</div>
+          <div class="hiw-step-desc">Once every member has received the pot once, the rotation starts again from the beginning.</div>
+        </div>
+      </div>
+      <div class="hiw-pot-box">
+        <div>
+          <div class="hiw-pot-label">Collected This Month</div>
+          <div class="hiw-pot-value">${fmt(pot)}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px">of ${fmt(maxPot)} agreed (${memberCount} member${memberCount !== 1 ? 's' : ''})</div>
+        </div>
+        ${contribNote}
+      </div>
+      ${memberCount > 0 ? `
+      <div style="margin-top:14px">
+        <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Rotation Order</div>
+        <div class="hiw-rotation-bar">${rotationPills}</div>
+        <div style="margin-top:10px;font-size:12px;color:var(--text2)">
+          <span style="background:rgba(255,209,102,.15);border:1px solid var(--gold);border-radius:10px;padding:2px 8px;color:var(--gold);margin-right:6px">🎉 Next up</span>
+          ${memberId ? `<span style="background:rgba(108,99,255,.18);border:1px solid var(--accent);border-radius:10px;padding:2px 8px;color:var(--accent);margin-right:6px">👤 You</span>` : ''}
+          Others in queue
+        </div>
+      </div>
+      ${positionNote}` : ''}
+    </div>
+    <div class="rules-notice" style="margin-bottom:0">
+      <div class="rn-title">📋 Scheme Rules</div>
+      <ul>
+        ${rulesContrib}
+        <li><strong>Stokvel payout:</strong> Each cycle, one member receives the <strong>full combined pot</strong> — the total of all deposits collected that month. Members rotate in order of join date. If a member pays less, the pot will be smaller for that recipient.</li>
+        <li><strong>Emergency withdrawal:</strong> You may only withdraw up to <strong>the amount you have deposited in the current month</strong> (maximum your monthly contribution).</li>
+        <li><strong>Repayment obligation:</strong> The withdrawn amount <strong>must be paid back in full</strong>, plus your normal monthly contribution, by the following month.</li>
+        <li>No further emergency withdrawals are permitted while you have an outstanding debt.</li>
+      </ul>
+      <div class="suspension-warning">⚠️ Failure to settle an emergency debt will result in <strong>suspension from the Springbok Savings Scheme</strong>.</div>
+    </div>`;
+  openModal('modal-info');
+}
+
+function openAccountModal() {
+  if (currentSession && currentSession.role === 'member') {
+    ['ma-current-pin','ma-new-name','ma-new-pin','ma-confirm-pin'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ma-new-name').placeholder = 'Current: ' + currentSession.name;
+    document.getElementById('ma-error').textContent = '';
+    openModal('modal-member-account');
+  } else {
+    ['pw-current','pw-new','pw-confirm'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pw-error').textContent = '';
+    openModal('modal-change-pw');
+  }
+}
+
+function saveMemberAccount() {
+  const errEl = document.getElementById('ma-error');
+  errEl.textContent = '';
+  const curPin  = document.getElementById('ma-current-pin').value;
+  const newName = document.getElementById('ma-new-name').value.trim();
+  const newPin  = document.getElementById('ma-new-pin').value;
+  const confirmPin = document.getElementById('ma-confirm-pin').value;
+  const m = getMemberById(currentSession.memberId);
+  if (!m) { errEl.textContent = 'Member not found.'; return; }
+  if (!newName && !newPin) { errEl.textContent = 'No changes provided.'; return; }
+  if (newPin) {
+    if (newPin.length < 6 || !/^\d+$/.test(newPin)) { errEl.textContent = 'New PIN must be at least 6 digits (numbers only).'; return; }
+    if (newPin !== confirmPin) { errEl.textContent = 'PINs do not match.'; return; }
+  }
+  if (newName && db.members.some(x => x.id !== m.id && x.name.toLowerCase() === newName.toLowerCase())) {
+    errEl.textContent = 'That username is already taken.'; return;
+  }
+  (async () => {
+    // Verify current PIN (handles both hashed and plain-text legacy)
+    let pinOk = false;
+    if (m.pinHashed) {
+      pinOk = (await hashSecret(curPin, m.id)) === m.pin;
+    } else {
+      pinOk = curPin === m.pin;
+    }
+    if (!pinOk) { errEl.textContent = 'Current PIN is incorrect.'; return; }
+    if (newName) {
+      m.name = newName;
+      currentSession.name = newName;
+      sessionStorage.setItem(SESS_KEY, JSON.stringify(currentSession));
+      document.getElementById('nav-user').textContent = '👤 ' + newName;
+    }
+    if (newPin) {
+      m.pin = await hashSecret(newPin, m.id);
+      m.pinHashed = true;
+    }
+    save(db);
+    closeModal('modal-member-account');
+    showToast('Account updated successfully ✓', 'success');
+  })();
+}
+
+// Restore session on page reload
+(function() {
+  const raw = sessionStorage.getItem(SESS_KEY);
+  if (!raw) return;
+  try {
+    const sess = JSON.parse(raw);
+    // Defer until db is loaded (runs after db = load() below)
+    window._restoreSession = sess;
+  } catch {}
+})();
+
+// ═══════════════════════════════════════
+//  DATA LAYER
+// ═══════════════════════════════════════
+const STORE_KEY = 'springbok_v2';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { members: [], transactions: [] }; }
+  catch { return { members: [], transactions: [] }; }
+}
+function save(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+
+let db = load();
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ═══════════════════════════════════════
+//  BUSINESS LOGIC
+// ═══════════════════════════════════════
+
+function getMemberById(id) { return db.members.find(m => m.id === id); }
+
+/** All transactions for a member */
+function memberTx(memberId) { return db.transactions.filter(t => t.memberId === memberId); }
+
+/** Total deposited by member */
+function totalDeposited(memberId) {
+  return memberTx(memberId).filter(t => t.type === 'deposit' || t.type === 'settlement')
+    .reduce((s, t) => s + t.amount, 0);
+}
+
+/** Amount deposited this calendar month */
+function depositedThisMonth(memberId) {
+  const now = new Date();
+  return memberTx(memberId)
+    .filter(t => t.type === 'deposit')
+    .filter(t => { const d = new Date(t.date); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth(); })
+    .reduce((s, t) => s + t.amount, 0);
+}
+
+/** Short payment debt: sum of monthly shortfalls since member joined */
+function shortPaymentDebt(memberId) {
+  const member = getMemberById(memberId);
+  if (!member) return 0;
+  const contrib = member.monthlyContribution || 500;
+  const joined = new Date(member.joinDate);
+  const now = new Date();
+  let shortfall = 0;
+  // Iterate every month from join month up to (but not including) current month
+  const y0 = joined.getFullYear(), m0 = joined.getMonth();
+  const y1 = now.getFullYear(), m1 = now.getMonth();
+  for (let y = y0, mo = m0; y < y1 || (y === y1 && mo < m1); mo++) {
+    if (mo > 11) { mo = 0; y++; }
+    if (y > y1 || (y === y1 && mo >= m1)) break;
+    const paid = memberTx(memberId)
+      .filter(t => t.type === 'deposit')
+      .filter(t => { const d = new Date(t.date); return d.getFullYear() === y && d.getMonth() === mo; })
+      .reduce((s, t) => s + t.amount, 0);
+    if (paid < contrib) shortfall += contrib - paid;
+  }
+  return shortfall;
+}
+
+/** Outstanding debt (emergency taken – settled + short payments) */
+function outstandingDebt(memberId) {
+  const emg = memberTx(memberId).filter(t => t.type === 'emergency').reduce((s, t) => s + t.amount, 0);
+  const set = memberTx(memberId).filter(t => t.type === 'settlement').reduce((s, t) => s + t.amount, 0);
+  return Math.max(0, emg - set) + shortPaymentDebt(memberId);
+}
+
+/** Number of completed deposit months (for payout tracking) */
+function depositMonths(memberId) {
+  const dates = memberTx(memberId)
+    .filter(t => t.type === 'deposit')
+    .map(t => { const d = new Date(t.date); return d.getFullYear() + '-' + d.getMonth(); });
+  return new Set(dates).size;
+}
+
+/** Total payouts issued */
+function totalPayouts(memberId) {
+  return memberTx(memberId).filter(t => t.type === 'payout').reduce((s, t) => s + t.amount, 0);
+}
+
+/** Net balance = deposits + settlements - emergencies - payouts */
+function netBalance(memberId) {
+  return memberTx(memberId).reduce((s, t) => {
+    if (t.type === 'deposit' || t.type === 'settlement') return s + t.amount;
+    return s - t.amount;
+  }, 0);
+}
+
+/** Rotation position in the stokvel queue (0 = due now) */
+function monthsUntilPayout(memberId) {
+  const ranked = [...db.members]
+    .map(m => ({ id: m.id, count: memberTx(m.id).filter(t => t.type === 'payout').length, joinDate: m.joinDate }))
+    .sort((a, b) => a.count - b.count || new Date(a.joinDate) - new Date(b.joinDate));
+  const pos = ranked.findIndex(r => r.id === memberId);
+  return pos < 0 ? 0 : pos;
+}
+
+/** Actual stokvel pot = sum of all deposits made in the given month (defaults to current month) */
+function expectedPayout(dateStr) {
+  const ref = dateStr ? new Date(dateStr) : new Date();
+  const y = ref.getFullYear(), mo = ref.getMonth();
+  return db.transactions
+    .filter(t => t.type === 'deposit')
+    .filter(t => { const d = new Date(t.date); return d.getFullYear() === y && d.getMonth() === mo; })
+    .reduce((s, t) => s + t.amount, 0);
+}
+
+/** Maximum possible pot if all members paid in full for a given month */
+function agreedPot() {
+  return db.members.reduce((s, m) => s + (m.monthlyContribution || 500), 0);
+}
+
+/** Next payment due date for a member given their paymentDay */
+function nextPaymentDue(member) {
+  if (!member.paymentDay) return null;
+  const today = new Date();
+  const day = member.paymentDay;
+  const paidThisMonth = depositedThisMonth(member.id) > 0;
+  // If they haven't paid yet and due date hasn't passed → this month
+  const thisMonthDue = new Date(today.getFullYear(), today.getMonth(), day);
+  if (!paidThisMonth && thisMonthDue >= new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+    return thisMonthDue;
+  }
+  // Otherwise next month
+  return new Date(today.getFullYear(), today.getMonth() + 1, day);
+}
+
+function paymentDueLabel(member) {
+  const d = nextPaymentDue(member);
+  if (!d) return null;
+  const contrib = member.monthlyContribution || 500;
+  const today = new Date();
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diffDays = Math.round((d - todayMidnight) / 86400000);
+  const paidThisMonth = depositedThisMonth(member.id) >= contrib;
+  const dateStr = d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
+  if (paidThisMonth) {
+    return { dateStr, diffDays, status: 'paid', label: `✓ Paid · Next due ${dateStr}` };
+  }
+  if (diffDays < 0) return { dateStr, diffDays, status: 'overdue', label: `Overdue since ${dateStr}` };
+  if (diffDays === 0) return { dateStr, diffDays, status: 'today', label: `Due today (${dateStr})` };
+  if (diffDays <= 5) return { dateStr, diffDays, status: 'soon', label: `Due in ${diffDays} day${diffDays===1?'':'s'} (${dateStr})` };
+  return { dateStr, diffDays, status: 'upcoming', label: `Due ${dateStr}` };
+}
+
+// ═══════════════════════════════════════
+//  FUND TOTALS
+// ═══════════════════════════════════════
+function fundTotal() {
+  return db.transactions.reduce((s, t) => {
+    if (t.type === 'deposit' || t.type === 'settlement') return s + t.amount;
+    return s - t.amount;
+  }, 0);
+}
+function totalEmergencies() { return db.transactions.filter(t => t.type === 'emergency').reduce((s, t) => s + t.amount, 0); }
+function totalPayoutsAll() { return db.transactions.filter(t => t.type === 'payout').reduce((s, t) => s + t.amount, 0); }
+function totalDepositsAll() { return db.transactions.filter(t => t.type === 'deposit').reduce((s, t) => s + t.amount, 0); }
+function totalDebt() { return db.members.reduce((s, m) => s + outstandingDebt(m.id), 0); }
+
+// ═══════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════
+function fmt(n) { return 'R ' + Number(n).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+const COLORS = ['#6c63ff','#00d4aa','#ff6b6b','#ffd166','#a29bfe','#fd79a8','#74b9ff','#55efc4','#fdcb6e','#e17055'];
+function memberColor(idx) { return COLORS[idx % COLORS.length]; }
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 3000);
+}
+
+function showPage(id) {
+  // Members can only view dashboard
+  if (currentSession && currentSession.role === 'member' && id !== 'dashboard') return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => { if (t.textContent.toLowerCase().includes(id.slice(0, 4))) t.classList.add('active'); });
+  // Restore chart grid visibility for admin
+  if (currentSession && currentSession.role === 'admin') {
+    document.querySelector('.grid3').style.display = '';
+    document.querySelector('#page-dashboard .grid2').style.display = '';
+  }
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'members') renderMembers();
+  if (id === 'payments') populatePaymentSelects();
+  if (id === 'transactions') renderHistory();
+  if (id === 'reconcile') showReconStep('upload');
+  if (id === 'bank-records') renderBankRecords();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// Set today's date on all date inputs
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  const firstOfMonth = today.slice(0, 8) + '01';
+  ['dep-date','emg-date','set-date','new-member-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+  const payDateEl = document.getElementById('pay-date');
+  if (payDateEl && !payDateEl.value) payDateEl.value = firstOfMonth;
+}
+
+// ═══════════════════════════════════════
+//  MEMBER ACTIONS
+// ═══════════════════════════════════════
+function ordinal(n) {
+  const s = ['th','st','nd','rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function buildPaydayOptions(selectedDay, noneLabel) {
+  let html = `<option value="">${noneLabel || '— No specific day —'}</option>`;
+  for (let d = 1; d <= 28; d++) {
+    html += `<option value="${d}" ${selectedDay == d ? 'selected' : ''}>${ordinal(d)} of the month</option>`;
+  }
+  return html;
+}
+
+function openAddMemberModal() {
+  document.getElementById('new-member-name').value = '';
+  document.getElementById('new-member-contribution').value = '500';
+  document.getElementById('new-member-payday').innerHTML = buildPaydayOptions(null, '— Select day —');
+  setDefaultDates();
+  openModal('modal-add-member');
+}
+
+function addMember() {
+  const name         = document.getElementById('new-member-name').value.trim();
+  const date         = document.getElementById('new-member-date').value;
+  const contribution = parseFloat(document.getElementById('new-member-contribution').value) || 500;
+  const payday       = parseInt(document.getElementById('new-member-payday').value) || null;
+  if (!name) return showToast('Please enter a name', 'error');
+  if (!date) return showToast('Please select a join date', 'error');
+  if (contribution <= 0) return showToast('Contribution must be greater than R0', 'error');
+  db.members.push({ id: uid(), name, joinDate: date, monthlyContribution: contribution, paymentDay: payday });
+  save(db);
+  closeModal('modal-add-member');
+  document.getElementById('new-member-name').value = '';
+  document.getElementById('new-member-payday').value = '';
+  renderMembers();
+  populatePaymentSelects();
+  showToast(`${name} added to the scheme ✓`, 'success');
+}
+
+function deleteMember(id) {
+  const m = getMemberById(id);
+  document.getElementById('confirm-msg').textContent = `Delete ${m.name} and all their transactions? This cannot be undone.`;
+  document.getElementById('confirm-btn').onclick = () => {
+    db.members = db.members.filter(x => x.id !== id);
+    db.transactions = db.transactions.filter(x => x.memberId !== id);
+    save(db);
+    closeModal('modal-confirm');
+    renderMembers();
+    populatePaymentSelects();
+    showToast(`${m.name} removed`, 'info');
+  };
+  openModal('modal-confirm');
+}
+
+function viewMember(id) {
+  const m = getMemberById(id);
+  const txs = memberTx(id).sort((a, b) => new Date(b.date) - new Date(a.date));
+  document.getElementById('detail-name').textContent = m.name;
+
+  const debt = outstandingDebt(id);
+  const months = depositMonths(id);
+  const paid = totalPayouts(id);
+
+  let html = `
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+      <div class="member-stat"><div class="ms-label">Deposited</div><div class="ms-value pos">${fmt(totalDeposited(id))}</div></div>
+      <div class="member-stat"><div class="ms-label">Payouts</div><div class="ms-value gold-text">${fmt(paid)}</div></div>
+      <div class="member-stat"><div class="ms-label">Debt Owed</div><div class="ms-value ${debt > 0 ? 'neg' : 'pos'}">${fmt(debt)}</div></div>
+    </div>
+    <div style="margin-bottom:8px;font-size:13px;color:var(--text2)">
+      Deposit months: <strong>${months}</strong> &nbsp;|&nbsp; Rotation position: <strong>#${monthsUntilPayout(id) + 1}</strong> &nbsp;|&nbsp; Stokvel pot: <strong style="color:var(--gold)">${fmt(expectedPayout())}</strong>
+    </div>
+    <hr class="divider">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text2)">TRANSACTION HISTORY</div>
+  `;
+  if (!txs.length) {
+    html += '<div style="color:var(--text2);text-align:center;padding:20px">No transactions yet</div>';
+  } else {
+    html += '<div style="max-height:260px;overflow-y:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th></tr></thead><tbody>';
+    txs.forEach(t => {
+      const isIn = t.type === 'deposit' || t.type === 'settlement';
+      html += `<tr>
+        <td>${fmtDate(t.date)}</td>
+        <td>${typeBadge(t.type)}</td>
+        <td class="${isIn ? 'pos' : 'neg'}">${isIn ? '+' : '-'}${fmt(t.amount)}</td>
+        <td style="color:var(--text2)">${t.notes || ''}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('detail-content').innerHTML = html;
+  openModal('modal-member-detail');
+}
+
+function typeBadge(type) {
+  const map = {
+    deposit: ['badge-green', '💰 Deposit'],
+    emergency: ['badge-red', '🚨 Emergency'],
+    settlement: ['badge-blue', '✅ Settlement'],
+    payout: ['badge-gold', '🏆 Payout'],
+  };
+  const [cls, label] = map[type] || ['badge-blue', type];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+// ═══════════════════════════════════════
+//  RENDER MEMBERS PAGE
+// ═══════════════════════════════════════
+function renderMembers() {
+  const grid = document.getElementById('member-grid');
+  if (!db.members.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👥</div><p>No members yet. Add the first family member.</p></div>';
+    return;
+  }
+  grid.innerHTML = db.members.map((m, i) => {
+    const debt = outstandingDebt(m.id);
+    const bal = netBalance(m.id);
+    const months = depositMonths(m.id);
+    const until = monthsUntilPayout(m.id);
+    const initials = m.name.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+    return `
+    <div class="member-card">
+      <div class="member-avatar" style="background:${memberColor(i)}">${initials}</div>
+      <div class="member-name">${m.name}</div>
+      <div class="member-joined">Joined ${fmtDate(m.joinDate)} &nbsp;·&nbsp; <span style="color:var(--accent2)">${fmt(m.monthlyContribution||500)}/mo</span></div>
+      <div class="member-stats">
+        <div class="member-stat">
+          <div class="ms-label">Net Balance</div>
+          <div class="ms-value ${bal >= 0 ? 'pos' : 'neg'}">${fmt(bal)}</div>
+        </div>
+        <div class="member-stat">
+          <div class="ms-label">Debt Owed</div>
+          <div class="ms-value ${debt > 0 ? 'neg' : 'pos'}">${fmt(debt)}</div>
+        </div>
+        <div class="member-stat">
+          <div class="ms-label">Months In</div>
+          <div class="ms-value">${months}</div>
+        </div>
+        <div class="member-stat">
+          <div class="ms-label">Rotation</div>
+          <div class="ms-value gold-text">${until === 0 ? 'Due Now!' : '#' + (until + 1) + ' in queue'}</div>
+        </div>
+        <div class="member-stat">
+          <div class="ms-label">Stokvel Pot</div>
+          <div class="ms-value gold-text">${fmt(expectedPayout())}</div>
+          <div style="font-size:10px;color:var(--text2);margin-top:2px">of ${fmt(agreedPot())} agreed</div>
+        </div>
+      </div>
+      <div class="member-actions">
+        <button class="btn btn-ghost btn-sm" onclick="viewMember('${m.id}')">View Details</button>
+        <button class="btn btn-ghost btn-sm" onclick="openEditMember('${m.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}')">Remove</button>
+      </div>
+      ${(() => {
+        const due = paymentDueLabel(m);
+        if (!due) return '';
+        const color = due.status === 'overdue' ? 'var(--red)' : due.status === 'today' ? 'var(--red)' : due.status === 'soon' ? 'var(--gold)' : due.status === 'paid' ? 'var(--green)' : 'var(--text2)';
+        const icon  = due.status === 'overdue' ? '🚨' : due.status === 'today' ? '⚠️' : due.status === 'soon' ? '⏰' : due.status === 'paid' ? '✓' : '📅';
+        return `<div style="margin-top:10px;padding:8px 12px;background:var(--bg3);border-radius:8px;font-size:12px;color:${color};font-weight:600">${icon} ${due.label}</div>`;
+      })()}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+//  PAYMENT SELECTS
+// ═══════════════════════════════════════
+function prefillDepositAmount() {
+  const id = document.getElementById('dep-member').value;
+  if (!id) return;
+  const m = getMemberById(id);
+  if (m) document.getElementById('dep-amount').value = m.monthlyContribution || 500;
+}
+
+function prefillPayoutAmount() {
+  const date = document.getElementById('pay-date').value;
+  document.getElementById('pay-amount').value = expectedPayout(date || undefined);
+}
+
+function populatePaymentSelects() {
+  const selects = ['dep-member','emg-member','set-member','pay-member','filter-member'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isFilter = id === 'filter-member';
+    const prev = el.value;
+    el.innerHTML = (isFilter ? '<option value="">All Members</option>' : '') +
+      db.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    if (prev) el.value = prev;
+  });
+  setDefaultDates();
+  prefillDepositAmount();
+  prefillPayoutAmount();
+  updateEmergencyInfo();
+  updateSettlementInfo();
+}
+
+function updateEmergencyInfo() {
+  const id = document.getElementById('emg-member').value;
+  if (!id) return;
+  const deposited = depositedThisMonth(id);
+  const debt = outstandingDebt(id);
+  document.getElementById('emg-deposited').textContent = fmt(deposited);
+  document.getElementById('emg-max').textContent = fmt(Math.max(0, deposited));
+  document.getElementById('emg-debt').textContent = fmt(debt);
+  document.getElementById('emg-info-box').style.display = 'block';
+}
+
+function updateSettlementInfo() {
+  const id = document.getElementById('set-member').value;
+  if (!id) return;
+  const debt = outstandingDebt(id);
+  document.getElementById('set-owed').textContent = fmt(debt);
+  document.getElementById('set-info-box').style.display = 'block';
+}
+
+// ═══════════════════════════════════════
+//  RECORD TRANSACTIONS
+// ═══════════════════════════════════════
+function recordDeposit() {
+  const memberId = document.getElementById('dep-member').value;
+  const date = document.getElementById('dep-date').value;
+  const amount = parseFloat(document.getElementById('dep-amount').value);
+  const notes = document.getElementById('dep-notes').value.trim();
+  if (!memberId) return showToast('Select a member', 'error');
+  if (!date) return showToast('Select a date', 'error');
+  if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
+  db.transactions.push({ id: uid(), memberId, type: 'deposit', amount, date, notes });
+  save(db);
+  document.getElementById('dep-notes').value = '';
+  showToast(`Deposit of ${fmt(amount)} recorded ✓`, 'success');
+  updateEmergencyInfo();
+  updateSettlementInfo();
+}
+
+function recordEmergency() {
+  const memberId = document.getElementById('emg-member').value;
+  const date = document.getElementById('emg-date').value;
+  const amount = parseFloat(document.getElementById('emg-amount').value);
+  const notes = document.getElementById('emg-notes').value.trim();
+  if (!memberId) return showToast('Select a member', 'error');
+  if (!date) return showToast('Select a date', 'error');
+  if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
+
+  const maxAllowed = depositedThisMonth(memberId);
+  if (amount > maxAllowed) {
+    return showToast(`Max allowed this month is ${fmt(maxAllowed)}`, 'error');
+  }
+  const debt = outstandingDebt(memberId);
+  if (debt > 0) {
+    return showToast(`Member still has outstanding debt of ${fmt(debt)}. Must settle first.`, 'error');
+  }
+
+  db.transactions.push({ id: uid(), memberId, type: 'emergency', amount, date, notes });
+  save(db);
+  document.getElementById('emg-amount').value = '';
+  document.getElementById('emg-notes').value = '';
+  const memberContrib = getMemberById(memberId).monthlyContribution || 500;
+  showToast(`Emergency withdrawal of ${fmt(amount)} recorded. Must repay ${fmt(amount)} + ${fmt(memberContrib)} next month.`, 'info');
+  updateEmergencyInfo();
+}
+
+function recordSettlement() {
+  const memberId = document.getElementById('set-member').value;
+  const date = document.getElementById('set-date').value;
+  const amount = parseFloat(document.getElementById('set-amount').value);
+  const notes = document.getElementById('set-notes').value.trim();
+  if (!memberId) return showToast('Select a member', 'error');
+  if (!date) return showToast('Select a date', 'error');
+  if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
+
+  db.transactions.push({ id: uid(), memberId, type: 'settlement', amount, date, notes });
+  save(db);
+  document.getElementById('set-amount').value = '';
+  document.getElementById('set-notes').value = '';
+  showToast(`Settlement of ${fmt(amount)} recorded ✓`, 'success');
+  updateSettlementInfo();
+}
+
+function recordPayout() {
+  const memberId = document.getElementById('pay-member').value;
+  const date = document.getElementById('pay-date').value;
+  const amount = parseFloat(document.getElementById('pay-amount').value);
+  const notes = document.getElementById('pay-notes').value.trim();
+  if (!memberId) return showToast('Select a member', 'error');
+  if (!date) return showToast('Select a date', 'error');
+  if (new Date(date).getUTCDate() !== 1) return showToast('Payouts must be issued on the 1st of the month', 'error');
+  if (!amount || amount <= 0) return showToast('Enter a valid amount', 'error');
+
+  // Enforce stokvel rotation order
+  const ranked = [...db.members]
+    .map(m => ({ id: m.id, count: db.transactions.filter(t => t.memberId === m.id && t.type === 'payout').length, joinDate: m.joinDate }))
+    .sort((a, b) => a.count - b.count || new Date(a.joinDate) - new Date(b.joinDate));
+  if (ranked.length && ranked[0].id !== memberId) {
+    const nextUp = getMemberById(ranked[0].id);
+    return showToast(`It is ${nextUp.name}'s turn in the rotation. Issue the payout to them first.`, 'error');
+  }
+
+  const debt = outstandingDebt(memberId);
+  let actualPayout = amount;
+  let debtNote = '';
+  if (debt > 0) {
+    const deduction = Math.min(debt, amount);
+    actualPayout = amount - deduction;
+    // Record a settlement to clear the debt
+    db.transactions.push({ id: uid(), memberId, type: 'settlement', amount: deduction, date, notes: `Debt settled from payout` });
+    debtNote = ` (R${deduction.toFixed(2)} debt deducted)`;
+  }
+  db.transactions.push({ id: uid(), memberId, type: 'payout', amount: actualPayout, date, notes });
+  save(db);
+  document.getElementById('pay-notes').value = '';
+  const member = getMemberById(memberId);
+  showToast(`Stokvel payout of ${fmt(actualPayout)} issued to ${member.name}${debtNote} ✓`, 'success');
+}
+
+// ═══════════════════════════════════════
+//  HISTORY PAGE
+// ═══════════════════════════════════════
+function renderHistory() {
+  const filterMember = document.getElementById('filter-member').value;
+  const filterType = document.getElementById('filter-type').value;
+
+  let txs = [...db.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (filterMember) txs = txs.filter(t => t.memberId === filterMember);
+  if (filterType) txs = txs.filter(t => t.type === filterType);
+
+  const tbody = document.getElementById('history-tbody');
+  const empty = document.getElementById('history-empty');
+
+  if (!txs.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = txs.map(t => {
+    const m = getMemberById(t.memberId);
+    const isIn = t.type === 'deposit' || t.type === 'settlement';
+    return `<tr>
+      <td><input type="checkbox" class="tx-select" data-id="${t.id}" onchange="updateBulkDeleteBtn()"></td>
+      <td>${fmtDate(t.date)}</td>
+      <td>${m ? m.name : 'Unknown'}</td>
+      <td>${typeBadge(t.type)}</td>
+      <td class="${isIn ? 'pos' : 'neg'}" style="font-weight:700">${isIn ? '+' : '-'}${fmt(t.amount)}</td>
+      <td style="color:var(--text2);font-size:13px">${t.notes || '—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteTx('${t.id}')">🗑 Delete</button></td>
+    </tr>`;
+  }).join('');
+  const selectAll = document.getElementById('select-all-tx');
+  if (selectAll) selectAll.checked = false;
+  updateBulkDeleteBtn();
+}
+
+function deleteTx(id) {
+  document.getElementById('confirm-msg').textContent = 'Delete this transaction? This cannot be undone.';
+  document.getElementById('confirm-btn').onclick = () => {
+    db.transactions = db.transactions.filter(t => t.id !== id);
+    save(db); closeModal('modal-confirm'); renderHistory(); renderDashboard();
+    showToast('Transaction deleted', 'success');
+  };
+  openModal('modal-confirm');
+}
+
+function toggleSelectAllTx(checked) {
+  document.querySelectorAll('.tx-select').forEach(cb => cb.checked = checked);
+  updateBulkDeleteBtn();
+}
+
+function updateBulkDeleteBtn() {
+  const count = document.querySelectorAll('.tx-select:checked').length;
+  const btn = document.getElementById('bulk-delete-btn');
+  if (!btn) return;
+  if (count > 0) { btn.style.display = ''; btn.textContent = `\uD83D\uDDD1 Delete ${count} Selected`; }
+  else { btn.style.display = 'none'; }
+}
+
+function bulkDeleteSelected() {
+  const ids = [...document.querySelectorAll('.tx-select:checked')].map(cb => cb.dataset.id);
+  if (!ids.length) return;
+  document.getElementById('confirm-msg').textContent = `Delete ${ids.length} transaction${ids.length !== 1 ? 's' : ''}? This cannot be undone.`;
+  document.getElementById('confirm-btn').onclick = () => {
+    db.transactions = db.transactions.filter(t => !ids.includes(t.id));
+    save(db); closeModal('modal-confirm'); renderHistory(); renderDashboard();
+    showToast(`${ids.length} transaction${ids.length !== 1 ? 's' : ''} deleted`, 'success');
+  };
+  openModal('modal-confirm');
+}
+
+function bulkDeleteSelected() {
+  const ids = [...document.querySelectorAll('.tx-select:checked')].map(cb => cb.dataset.id);
+  if (!ids.length) return;
+  document.getElementById('confirm-msg').textContent = `Delete ${ids.length} transaction${ids.length !== 1 ? 's' : ''}? This cannot be undone.`;
+  document.getElementById('confirm-btn').onclick = () => {
+    db.transactions = db.transactions.filter(t => !ids.includes(t.id));
+    save(db); closeModal('modal-confirm'); renderHistory(); renderDashboard();
+    showToast(`${ids.length} transaction${ids.length !== 1 ? 's' : ''} deleted`, 'success');
+  };
+  openModal('modal-confirm');
+}
+
+// ═══════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════
+let chartContrib = null, chartBreak = null;
+
+function renderDashboard() {
+  // Member view: show personal dashboard only
+  if (currentSession && currentSession.role === 'member') {
+    renderMemberDashboard(currentSession.memberId);
+    return;
+  }
+  const total = fundTotal();
+  const emg = totalEmergencies();
+  const pays = totalPayoutsAll();
+  const deps = totalDepositsAll();
+  const debt = totalDebt();
+  const membersWithDebt = db.members.filter(m => outstandingDebt(m.id) > 0).length;
+
+  // Stat cards
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card" style="--accent-color:var(--accent)">
+      <div class="icon">💰</div>
+      <div class="label">Total Fund</div>
+      <div class="value">${fmt(total)}</div>
+      <div class="sub">${db.members.length} active members</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--green)">
+      <div class="icon">📥</div>
+      <div class="label">Total Deposits</div>
+      <div class="value" style="color:var(--green)">${fmt(deps)}</div>
+      <div class="sub">${db.transactions.filter(t=>t.type==='deposit').length} payments made</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--red)">
+      <div class="icon">🚨</div>
+      <div class="label">Emergencies</div>
+      <div class="value" style="color:var(--red)">${fmt(emg)}</div>
+      <div class="sub">${membersWithDebt} member(s) in debt</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--gold)">
+      <div class="icon">🏆</div>
+      <div class="label">Payouts Issued</div>
+      <div class="value" style="color:var(--gold)">${fmt(pays)}</div>
+      <div class="sub">${db.transactions.filter(t=>t.type==='payout').length} payouts</div>
+    </div>
+    <div class="stat-card" style="--accent-color:#fd79a8">
+      <div class="icon">⚠️</div>
+      <div class="label">Total Debt</div>
+      <div class="value" style="color:#fd79a8">${fmt(debt)}</div>
+      <div class="sub">Outstanding owed</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--green)">
+      <div class="icon">🔄</div>
+      <div class="label">Monthly Stokvel Pot</div>
+      <div class="value" style="color:var(--green)">${fmt(expectedPayout())}</div>
+      <div class="sub">${db.members.length} member${db.members.length!==1?'s':''} contributing · max ${fmt(agreedPot())}</div>
+    </div>
+  `;
+
+  // Contribution chart (last 6 months)
+  const months = [];
+  const monthlyData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const label = d.toLocaleDateString('en-ZA', { month: 'short', year: '2-digit' });
+    months.push(label);
+    const y = d.getFullYear(), mo = d.getMonth();
+    const total = db.transactions
+      .filter(t => t.type === 'deposit')
+      .filter(t => { const dd = new Date(t.date); return dd.getFullYear() === y && dd.getMonth() === mo; })
+      .reduce((s, t) => s + t.amount, 0);
+    monthlyData.push(total);
+  }
+
+  if (chartContrib) { chartContrib.destroy(); }
+  const ctx1 = document.getElementById('chartContributions').getContext('2d');
+  chartContrib = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Deposits (R)',
+        data: monthlyData,
+        backgroundColor: 'rgba(108,99,255,0.7)',
+        borderColor: '#6c63ff',
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#2e3348' }, ticks: { color: '#9ba3c4' } },
+        y: { grid: { color: '#2e3348' }, ticks: { color: '#9ba3c4', callback: v => 'R' + v.toLocaleString() } }
+      }
+    }
+  });
+
+  // Breakdown doughnut
+  if (chartBreak) { chartBreak.destroy(); }
+  const ctx2 = document.getElementById('chartBreakdown').getContext('2d');
+  chartBreak = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['In Fund', 'Emergencies', 'Payouts Out'],
+      datasets: [{
+        data: [Math.max(0, total), emg, pays],
+        backgroundColor: ['#6c63ff', '#ff6b6b', '#ffd166'],
+        borderColor: '#1a1d27',
+        borderWidth: 3,
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#9ba3c4', padding: 14, font: { size: 12 } } }
+      },
+      cutout: '65%'
+    }
+  });
+
+  // Stokvel rotation overview
+  const stokvelEl = document.getElementById('dash-stokvel');
+  if (!db.members.length) {
+    stokvelEl.innerHTML = '<div style="color:var(--text2);font-size:13px">No members yet. Add members to see the rotation.</div>';
+  } else {
+    const pot = expectedPayout();
+    const agreed = agreedPot();
+    const ranked = [...db.members]
+      .map(m => ({ ...m, count: memberTx(m.id).filter(t => t.type === 'payout').length }))
+      .sort((a, b) => a.count - b.count || new Date(a.joinDate) - new Date(b.joinDate));
+    const currentRound = ranked[0].count + 1;
+    const paidThisRound = ranked.filter(m => m.count >= currentRound).length;
+    const rows = ranked.map((m, i) => {
+      const contrib = m.monthlyContribution || 500;
+      const isNext = i === 0;
+      const debt = outstandingDebt(m.id);
+      const nextOwing = (m.monthlyContribution || 500) + debt;
+      const depositedThisM = memberTx(m.id).filter(t => t.type === 'deposit').filter(t => {
+        const d = new Date(t.date); const n = new Date();
+        return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth();
+      }).reduce((s, t) => s + t.amount, 0);
+      const paidThisMonth = depositedThisM > 0;
+      const isShort = paidThisMonth && depositedThisM < contrib;
+      const paidBadge = !paidThisMonth
+        ? '<span class="badge" style="background:rgba(255,107,107,.12);color:var(--red)">Pending</span>'
+        : isShort
+          ? `<span class="badge" style="background:rgba(255,209,102,.15);color:var(--gold)">Short (${fmt(depositedThisM)})</span>`
+          : '<span class="badge" style="background:rgba(0,212,170,.15);color:var(--green)">✓ Paid</span>';
+      return `<tr style="${isNext ? 'background:rgba(255,209,102,.06)' : ''}">
+        <td style="font-weight:600">${isNext ? '🎉 ' : (i + 1) + '. '}${m.name}</td>
+        <td style="color:var(--accent2)">${fmt(m.monthlyContribution || 500)}/mo</td>
+        <td style="color:var(--gold);font-weight:700">${fmt(depositedThisM)}</td>
+        <td>${paidBadge}</td>
+        <td style="${debt > 0 ? 'color:var(--red);font-weight:700' : 'color:var(--text2)'}">
+          ${debt > 0
+            ? `${fmt(nextOwing)} <span style="font-size:11px;font-weight:400">(${fmt(m.monthlyContribution||500)} + ${fmt(debt)} debt)</span>`
+            : fmt(m.monthlyContribution || 500)}
+        </td>
+        <td style="color:var(--text2)">${m.count} payout${m.count !== 1 ? 's' : ''} received</td>
+        <td>${isNext ? '<span class="badge badge-gold">🎉 Next up</span>' : `<span style="font-size:12px;color:var(--text2)">#${i + 1} in queue</span>`}</td>
+      </tr>`;
+    }).join('');
+    stokvelEl.innerHTML = `
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 18px;min-width:130px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Current Round</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">Round ${currentRound}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 18px;min-width:130px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Collected This Month</div>
+          <div style="font-size:20px;font-weight:800;color:var(--gold)">${fmt(pot)}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px">of ${fmt(agreed)} agreed</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 18px;min-width:130px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Still to Receive</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent2)">${ranked.length - paidThisRound} / ${ranked.length}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 18px;min-width:130px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Next Payout To</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text)">${ranked[0].name}</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Member</th><th>Agreed/mo</th><th>Paid This Month</th><th>Status</th><th>Next Month Owing</th><th>History</th><th>Rotation</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+  }
+
+  // Next payouts
+  const payoutEl = document.getElementById('dash-payouts');
+  if (!db.members.length) {
+    payoutEl.innerHTML = '<div style="color:var(--text2);font-size:13px">No members yet.</div>';
+  } else {
+    const sorted = [...db.members]
+      .map(m => ({ ...m, until: monthsUntilPayout(m.id) }))
+      .sort((a, b) => a.until - b.until);
+    payoutEl.innerHTML = sorted.map((m, i) => {
+      const initials = m.name.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);${i === sorted.length - 1 ? 'border:none' : ''}">
+        <div style="width:36px;height:36px;border-radius:50%;background:${memberColor(db.members.indexOf(m))};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${initials}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">${m.name}</div>
+          <div style="font-size:12px;color:var(--text2)">${m.until === 0 ? '🎉 Next in rotation!' : `#${m.until + 1} in rotation`}</div>
+        </div>
+        ${(() => {
+          const pot = expectedPayout();
+          const debt = outstandingDebt(m.id);
+          const net = Math.max(0, pot - debt);
+          if (debt > 0) {
+            return `<div style="text-align:right">
+              <div style="font-weight:700;color:var(--gold)">${fmt(net)}</div>
+              <div style="font-size:11px;color:var(--red)">−${fmt(debt)} debt</div>
+            </div>`;
+          }
+          return `<div style="font-weight:700;color:var(--gold)">${fmt(pot)}</div>`;
+        })()}
+      </div>`;
+    }).join('');
+  }
+
+  // Debts
+  const debtEl = document.getElementById('dash-debts');
+  const debtors = db.members.filter(m => outstandingDebt(m.id) > 0);
+  if (!debtors.length) {
+    debtEl.innerHTML = '<div style="color:var(--green);font-size:13px">✓ No outstanding debts</div>';
+  } else {
+    debtEl.innerHTML = debtors.map(m => {
+      const d = outstandingDebt(m.id);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1;font-size:14px;font-weight:600">${m.name}</div>
+        <div class="neg" style="font-weight:700">${fmt(d)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Member balances
+  const balEl = document.getElementById('dash-member-balances');
+  if (!db.members.length) {
+    balEl.innerHTML = '<div style="color:var(--text2);text-align:center;padding:20px">No members yet.</div>';
+    return;
+  }
+  const maxBal = Math.max(...db.members.map(m => Math.abs(netBalance(m.id))), 1);
+  balEl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">` +
+    db.members.map((m, i) => {
+      const bal = netBalance(m.id);
+      const months = depositMonths(m.id);
+      const debt = outstandingDebt(m.id);
+      const pct = Math.min(100, (Math.abs(bal) / maxBal) * 100);
+      const color = memberColor(i);
+      return `<div style="padding:14px;background:var(--bg3);border-radius:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-weight:600;font-size:14px">${m.name}</span>
+          <span style="font-weight:700;color:${bal >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(bal)}</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--text2)">
+          <span>${months} deposit months</span>
+          ${debt > 0 ? `<span class="neg">Debt: ${fmt(debt)}</span>` : '<span class="pos">No debt</span>'}
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+}
+
+// ═══════════════════════════════════════
+//  MEMBER PERSONAL DASHBOARD
+// ═══════════════════════════════════════
+function renderMemberDashboard(memberId) {
+  const m = getMemberById(memberId);
+  if (!m) return;
+  const bal   = netBalance(memberId);
+  const debt  = outstandingDebt(memberId);
+  const deps  = totalDeposited(memberId);
+  const pays  = totalPayouts(memberId);
+  const months = depositMonths(memberId);
+  const until  = monthsUntilPayout(memberId);
+  const thisMonth = depositedThisMonth(memberId);
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card" style="--accent-color:var(--accent)">
+      <div class="icon">💰</div><div class="label">Net Balance</div>
+      <div class="value" style="color:${bal>=0?'var(--green)':'var(--red)'}">${fmt(bal)}</div>
+      <div class="sub">Your current balance</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--green)">
+      <div class="icon">📥</div><div class="label">Total Deposited</div>
+      <div class="value" style="color:var(--green)">${fmt(deps)}</div>
+      <div class="sub">${months} deposit month(s)</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--red)">
+      <div class="icon">⚠️</div><div class="label">Debt Owed</div>
+      <div class="value" style="color:${debt>0?'var(--red)':'var(--green)'}">${fmt(debt)}</div>
+      <div class="sub">${debt>0?'Outstanding emergency debt':'No outstanding debt'}</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--gold)">
+      <div class="icon">🏆</div><div class="label">Payouts Received</div>
+      <div class="value" style="color:var(--gold)">${fmt(pays)}</div>
+      <div class="sub">${db.transactions.filter(t=>t.memberId===memberId&&t.type==='payout').length} payout(s)</div>
+    </div>
+    <div class="stat-card" style="--accent-color:var(--accent2)">
+      <div class="icon">📅</div><div class="label">This Month</div>
+      <div class="value" style="color:var(--accent2)">${fmt(thisMonth)}</div>
+      <div class="sub">${thisMonth>=(m.monthlyContribution||500)?'✓ Paid this month':'Pending payment'}</div>
+    </div>
+    ${(() => {
+      const due = paymentDueLabel(m);
+      if (!due) return '';
+      const color = due.status==='overdue'||due.status==='today' ? 'var(--red)' : due.status==='soon' ? 'var(--gold)' : due.status==='paid' ? 'var(--green)' : 'var(--accent)';
+      const icon  = due.status==='overdue'||due.status==='today' ? '🚨' : due.status==='soon' ? '⏰' : due.status==='paid' ? '✅' : '📅';
+      return `<div class="stat-card" style="--accent-color:${color}">
+        <div class="icon">${icon}</div><div class="label">Next Payment Due</div>
+        <div class="value" style="font-size:18px;color:${color}">${due.dateStr}</div>
+        <div class="sub">${due.label}</div>
+      </div>`;
+    })()}
+  `;
+
+  // Next payout
+  document.getElementById('dash-payouts').innerHTML = `
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:8px">${until===0?'🎉':'⏳'}</div>
+      <div style="font-size:22px;font-weight:800;color:var(--gold)">${until===0?'🎉 Next in Rotation!':'#'+(until+1)+' in Rotation'}</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:6px">Pot collected so far this month: <strong style="color:var(--gold)">${fmt(expectedPayout())}</strong> of <strong style="color:var(--text2)">${fmt(agreedPot())} agreed</strong></div>
+    </div>`;
+
+  // Debt box
+  const contrib = m.monthlyContribution || 500;
+  const totalDueNextMonth = debt + contrib;
+  const nextMonthDue = nextPaymentDue(m);
+  const nextMonthLabel = nextMonthDue ? nextMonthDue.toLocaleDateString('en-ZA', { day: '2-digit', month: 'long', year: 'numeric' }) : 'next month';
+  const emgDebt = (() => { const e = memberTx(memberId).filter(t=>t.type==='emergency').reduce((s,t)=>s+t.amount,0); const se = memberTx(memberId).filter(t=>t.type==='settlement').reduce((s,t)=>s+t.amount,0); return Math.max(0,e-se); })();
+  const shortDebt = shortPaymentDebt(memberId);
+  document.getElementById('dash-debts').innerHTML = debt > 0
+    ? `<div style="padding:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="font-size:28px">⚠️</div>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:var(--red)">Outstanding Debt</div>
+            <div style="font-size:13px;color:var(--text2);margin-top:2px">This will be deducted from your payout when your turn comes.</div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">What you owe next month</div>
+          ${emgDebt > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;color:var(--text2)">Emergency debt repayment</span>
+            <span style="font-weight:700;color:var(--red)">${fmt(emgDebt)}</span>
+          </div>` : ''}
+          ${shortDebt > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;color:var(--text2)">Short payment arrears</span>
+            <span style="font-weight:700;color:var(--red)">${fmt(shortDebt)}</span>
+          </div>` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;color:var(--text2)">Monthly contribution</span>
+            <span style="font-weight:700;color:var(--text)">${fmt(contrib)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0">
+            <span style="font-size:14px;font-weight:700;color:var(--text)">Total due by ${nextMonthLabel}</span>
+            <span style="font-size:18px;font-weight:800;color:var(--red)">${fmt(totalDueNextMonth)}</span>
+          </div>
+        </div>
+        <div style="padding:8px 12px;background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);border-radius:8px;font-size:12px;color:var(--red);font-weight:600">
+          ⚠️ Non-payment will result in suspension from the scheme.
+        </div>
+      </div>`
+    : '<div style="color:var(--green);text-align:center;padding:20px">✓ No outstanding debt</div>';
+
+  // Recent transactions
+  const txs = memberTx(memberId).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+  const maxBal = Math.abs(bal) || 1;
+  document.getElementById('dash-member-balances').innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px">RECENT TRANSACTIONS</div>
+    ${!txs.length ? '<div style="color:var(--text2)">No transactions yet.</div>' :
+      '<div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th></tr></thead><tbody>' +
+      txs.map(t => {
+        const isIn = t.type==='deposit'||t.type==='settlement';
+        return `<tr><td>${fmtDate(t.date)}</td><td>${typeBadge(t.type)}</td><td class="${isIn?'pos':'neg'}" style="font-weight:700">${isIn?'+':'-'}${fmt(t.amount)}</td><td style="color:var(--text2);font-size:13px">${t.notes||'—'}</td></tr>`;
+      }).join('') +
+      '</tbody></table></div>'}
+  `;
+
+  // Hide chart section (not relevant for member view)
+  document.querySelector('.grid3').style.display = 'none';
+  document.querySelector('#page-dashboard .grid2').style.display = 'none';
+
+  // Destroy admin charts if open
+  if (chartContrib) { chartContrib.destroy(); chartContrib = null; }
+  if (chartBreak)   { chartBreak.destroy();   chartBreak = null; }
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+setDefaultDates();
+populatePaymentSelects();
+
+// ═══════════════════════════════════════
+//  RECONCILE MODULE
+// ═══════════════════════════════════════
+let reconData = { raw: [], headers: [], mapped: null, rows: [], results: [] };
+
+function showReconStep(step) {
+  ['upload','map','results'].forEach(s => {
+    document.getElementById('recon-step-' + s).style.display = s === step ? '' : 'none';
+  });
+  document.getElementById('recon-reset-btn').style.display = step === 'upload' ? 'none' : '';
+}
+
+// ── CSV Parser ──
+function parseCSV(text) {
+  // auto-detect delimiter: semicolon wins if more semicolons than commas on first line
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  const delim = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : ',';
+  const lines = text.trim().split(/\r?\n/);
+  return lines.filter(l => l.trim()).map(line => {
+    const row = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === delim && !inQ) { row.push(cur.trim().replace(/^"|"$/g,'')); cur = ''; }
+      else { cur += c; }
+    }
+    row.push(cur.trim().replace(/^"|"$/g,''));
+    return row;
+  });
+}
+
+// ── Column Auto-Detection ──
+function detectColumns(headers) {
+  const h = headers.map(x => (x || '').toLowerCase().trim());
+  const find = (...terms) => h.findIndex(x => terms.some(t => x.includes(t)));
+  return {
+    dateCol:   find('date', 'datum', 'trans date', 'transaction date', 'value date'),
+    descCol:   find('description', 'desc', 'narration', 'details', 'reference', 'particulars', 'info', 'detail'),
+    amountCol: find('amount', 'amt'),
+    creditCol: find('credit', 'deposits', 'cr '),
+    debitCol:  find('debit', 'withdrawal', 'deductions', 'dr '),
+  };
+}
+
+// ── Date Parser ──
+function parseReconDate(str) {
+  if (!str) return null;
+  str = str.trim().replace(/["']/g, '');
+  let m;
+  // YYYY-MM-DD or YYYY/MM/DD
+  m = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  // DD/MM/YYYY or DD-MM-YYYY
+  m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  // DD MMM YYYY
+  m = str.match(/^(\d{1,2})\s+([A-Za-z]{3})\s*(\d{4})/);
+  if (m) {
+    const mo = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    return new Date(+m[3], mo[m[2].toLowerCase()], +m[1]);
+  }
+  return null;
+}
+
+function parseReconAmount(str) {
+  if (str === null || str === undefined || str === '') return null;
+  const n = parseFloat(String(str).replace(/[R\s,]/g, '').replace(/["']/g,''));
+  return isNaN(n) ? null : n;
+}
+
+// ── Process raw rows into normalised row objects ──
+function processReconRows() {
+  const { raw, mapped } = reconData;
+  reconData.rows = [];
+  for (let i = 1; i < raw.length; i++) {
+    const r = raw[i];
+    if (!r || r.every(c => !c.trim())) continue;
+    const dateStr = mapped.dateCol >= 0 ? r[mapped.dateCol] : '';
+    const desc    = mapped.descCol >= 0 ? r[mapped.descCol] : r.join(' ');
+    let amount = null;
+    if (mapped.amountCol >= 0 && r[mapped.amountCol] !== '') {
+      amount = parseReconAmount(r[mapped.amountCol]);
+    } else {
+      const cr = mapped.creditCol >= 0 ? parseReconAmount(r[mapped.creditCol]) : null;
+      const dr = mapped.debitCol  >= 0 ? parseReconAmount(r[mapped.debitCol])  : null;
+      if (cr && cr > 0) amount = cr;
+      else if (dr && dr > 0) amount = -Math.abs(dr);
+    }
+    reconData.rows.push({ date: parseReconDate(dateStr), dateStr, desc: desc || '', amount, raw: r });
+  }
+}
+
+// ── Match a bank row to a scheme transaction ──
+function matchBankRow(bankRow) {
+  if (!bankRow.date || bankRow.amount === null) return null;
+  const absAmt = Math.abs(bankRow.amount);
+  const bankTime = bankRow.date.getTime();
+  const threeDays = 3 * 86400000;
+  const candidates = db.transactions.filter(t => {
+    const tTime = new Date(t.date).getTime();
+    return Math.abs(t.amount - absAmt) < 0.015 && Math.abs(tTime - bankTime) <= threeDays;
+  });
+  if (!candidates.length) return null;
+  return candidates.find(t => Math.abs(new Date(t.date).getTime() - bankTime) < 86400000) || candidates[0];
+}
+
+function runReconciliation() {
+  reconData.results = reconData.rows.map(row => ({
+    row, match: matchBankRow(row),
+    status: matchBankRow(row) ? 'matched' : 'unmatched',
+    linkData: null
+  }));
+  renderReconResults();
+  showReconStep('results');
+}
+
+function renderReconResults() {
+  const results = reconData.results;
+  const counts = { matched:0, linked:0, unmatched:0, ignored:0 };
+  results.forEach(r => counts[r.status] = (counts[r.status]||0) + 1);
+
+  document.getElementById('recon-summary').innerHTML = `
+    <span style="font-weight:600">Total: ${results.length} rows</span>
+    <span class="chip chip-green">✓ ${counts.matched||0} auto-matched</span>
+    <span class="chip chip-gold">🔗 ${counts.linked||0} manually linked</span>
+    <span class="chip chip-red">? ${counts.unmatched||0} unmatched</span>
+    <span class="chip chip-grey">— ${counts.ignored||0} ignored</span>`;
+
+  const tbody = document.getElementById('recon-tbody');
+  if (!results.length) {
+    tbody.innerHTML = '';
+    document.getElementById('recon-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('recon-empty').style.display = 'none';
+
+  tbody.innerHTML = results.map((r, i) => {
+    const { row, match, status } = r;
+    const amtPos = row.amount !== null && row.amount >= 0;
+    const amtStr = row.amount !== null
+      ? `<span class="${amtPos ? 'pos' : 'neg'}" style="font-weight:700">${amtPos ? '+' : ''}${fmt(Math.abs(row.amount))}</span>`
+      : '<span style="color:var(--text2)">—</span>';
+
+    let statusCell = '';
+    if (status === 'matched') {
+      const m = getMemberById(match.memberId);
+      statusCell = `<span class="chip chip-green">✓ Matched</span>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">${m ? m.name : 'Unknown'} · ${match.type}</div>`;
+    } else if (status === 'linked') {
+      statusCell = `<span class="chip chip-gold">🔗 Linked</span>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">${r.linkData.memberName} · ${r.linkData.type}${r.linkData.imported ? ' · imported' : ''}</div>`;
+    } else if (status === 'ignored') {
+      statusCell = `<span class="chip chip-grey">— Ignored</span>`;
+    } else {
+      statusCell = `<span class="chip chip-red">? Unmatched</span>`;
+    }
+
+    let actionCell = '';
+    if (status === 'unmatched') {
+      actionCell = `<div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn btn-ghost btn-sm" onclick="openReconLink(${i})">🔗 Link</button>
+        <button class="btn btn-ghost btn-sm" onclick="reconIgnore(${i})">— Ignore</button>
+      </div>`;
+    } else if (status === 'linked' || status === 'ignored') {
+      actionCell = `<button class="btn btn-ghost btn-sm" onclick="reconUndo(${i})">↩ Undo</button>`;
+    }
+
+    return `<tr id="recon-row-${i}">
+      <td style="font-size:13px;white-space:nowrap">${row.dateStr}</td>
+      <td style="font-size:13px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${row.desc.replace(/"/g,'&quot;')}">${row.desc}</td>
+      <td style="white-space:nowrap">${amtStr}</td>
+      <td>${statusCell}</td>
+      <td>${actionCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Link modal ──
+let _reconLinkIdx = -1;
+function openReconLink(idx) {
+  _reconLinkIdx = idx;
+  const r = reconData.results[idx];
+  document.getElementById('rl-date').textContent    = r.row.dateStr;
+  document.getElementById('rl-desc').textContent    = r.row.desc;
+  document.getElementById('rl-amount').textContent  = r.row.amount !== null ? fmt(Math.abs(r.row.amount)) : '—';
+  document.getElementById('rl-error').textContent   = '';
+  document.getElementById('rl-create').checked      = true;
+  const sel = document.getElementById('rl-member');
+  sel.innerHTML = '<option value="">— Select member —</option>' +
+    db.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  // Auto-select type based on sign
+  document.getElementById('rl-type').value = (r.row.amount !== null && r.row.amount < 0) ? 'payout' : 'deposit';
+  openModal('modal-recon-link');
+}
+
+function saveReconLink() {
+  const memberId = document.getElementById('rl-member').value;
+  const type     = document.getElementById('rl-type').value;
+  const doCreate = document.getElementById('rl-create').checked;
+  const errEl    = document.getElementById('rl-error');
+  errEl.textContent = '';
+  if (!memberId) { errEl.textContent = 'Please select a member.'; return; }
+  const r = reconData.results[_reconLinkIdx];
+  const m = getMemberById(memberId);
+  r.linkData = { memberId, memberName: m.name, type, imported: false };
+  r.status = 'linked';
+  if (doCreate) {
+    const dateStr = r.row.date ? r.row.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+    db.transactions.push({
+      id: uid(), memberId, type,
+      amount: Math.abs(r.row.amount || 0),
+      date: dateStr,
+      notes: 'Bank statement import: ' + r.row.desc,
+    });
+    save(db);
+    r.linkData.imported = true;
+  }
+  closeModal('modal-recon-link');
+  renderReconResults();
+  showToast(doCreate ? 'Transaction imported & linked ✓' : 'Row linked ✓', 'success');
+}
+
+function reconIgnore(idx) {
+  reconData.results[idx].status = 'ignored';
+  renderReconResults();
+}
+function reconUndo(idx) {
+  reconData.results[idx].status = 'unmatched';
+  reconData.results[idx].linkData = null;
+  renderReconResults();
+}
+
+// ── File / text entry points ──
+function handleReconFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => processReconText(e.target.result);
+  reader.readAsText(file);
+}
+
+function processReconText(text) {
+  if (!text || !text.trim()) { showToast('Nothing to parse — paste or upload a CSV first', 'error'); return; }
+  const raw = parseCSV(text);
+  if (raw.length < 2) { showToast('Could not parse file — need at least a header row and one data row', 'error'); return; }
+  reconData = { raw, headers: raw[0], mapped: null, rows: [], results: [] };
+  const detected = detectColumns(raw[0]);
+  reconData.mapped = detected;
+  renderColumnMapper(raw, detected);
+  showReconStep('map');
+}
+
+function renderColumnMapper(raw, detected) {
+  const headers = raw[0];
+  const preview = raw.slice(1, 6);
+  const opt = (sel, idx) => `<option value="${idx}" ${sel === idx ? 'selected' : ''}>${headers[idx] || 'Column ' + (idx+1)}</option>`;
+  const noneOpt = `<option value="-1">— None —</option>`;
+  const colOpts = (sel) => noneOpt + headers.map((_, i) => opt(sel, i)).join('');
+
+  document.getElementById('recon-col-mapper').innerHTML = `
+    <div class="form-grid" style="margin-bottom:20px">
+      <div class="form-group">
+        <label>Date Column</label>
+        <select id="map-date">${colOpts(detected.dateCol)}</select>
+      </div>
+      <div class="form-group">
+        <label>Description Column</label>
+        <select id="map-desc">${colOpts(detected.descCol)}</select>
+      </div>
+      <div class="form-group">
+        <label>Amount Column <span style="font-weight:400;color:var(--text2)">(signed +/−)</span></label>
+        <select id="map-amount">${colOpts(detected.amountCol)}</select>
+      </div>
+      <div class="form-group">
+        <label>Credit / In Column</label>
+        <select id="map-credit">${colOpts(detected.creditCol)}</select>
+      </div>
+      <div class="form-group">
+        <label>Debit / Out Column</label>
+        <select id="map-debit">${colOpts(detected.debitCol)}</select>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px">PREVIEW (first 5 rows)</div>
+    <div class="table-wrap" style="margin-bottom:0">
+      <table>
+        <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${preview.map(r => `<tr>${r.map(c => `<td style="font-size:12px">${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+function applyColumnMapping() {
+  reconData.mapped = {
+    dateCol:   parseInt(document.getElementById('map-date').value),
+    descCol:   parseInt(document.getElementById('map-desc').value),
+    amountCol: parseInt(document.getElementById('map-amount').value),
+    creditCol: parseInt(document.getElementById('map-credit').value),
+    debitCol:  parseInt(document.getElementById('map-debit').value),
+  };
+  processReconRows();
+  if (!reconData.rows.length) { showToast('No valid rows found after mapping — check column selection', 'error'); return; }
+  runReconciliation();
+}
+
+function resetRecon() {
+  reconData = { raw: [], headers: [], mapped: null, rows: [], results: [] };
+  const f = document.getElementById('recon-file');
+  if (f) f.value = '';
+  const p = document.getElementById('recon-paste');
+  if (p) p.value = '';
+  document.getElementById('recon-save-label').value = '';
+  document.getElementById('recon-save-msg').textContent = '';
+  showReconStep('upload');
+}
+
+// ── Save reconciliation session for members to view ──
+function saveReconSession() {
+  const label = document.getElementById('recon-save-label').value.trim();
+  const msgEl = document.getElementById('recon-save-msg');
+  if (!label) { msgEl.style.color = 'var(--red)'; msgEl.textContent = 'Please enter a label for this session.'; return; }
+  if (!reconData.results.length) { msgEl.style.color = 'var(--red)'; msgEl.textContent = 'No results to save.'; return; }
+
+  const session = {
+    id: uid(),
+    label,
+    savedAt: new Date().toISOString(),
+    savedBy: currentSession ? currentSession.name : 'Admin',
+    rows: reconData.results.map(r => ({
+      dateStr:    r.row.dateStr,
+      desc:       r.row.desc,
+      amount:     r.row.amount,
+      status:     r.status,
+      memberName: r.status === 'matched'
+        ? (getMemberById(r.match.memberId) || {}).name || ''
+        : r.linkData ? r.linkData.memberName : '',
+      txType: r.status === 'matched' ? r.match.type : (r.linkData ? r.linkData.type : ''),
+    })),
+  };
+
+  db.reconSessions = db.reconSessions || [];
+  db.reconSessions.unshift(session);
+  save(db);
+  msgEl.style.color = 'var(--green)';
+  msgEl.textContent = '✓ Published! Members can now view this in Bank Records.';
+}
+
+// ── Bank Records page ──
+function renderBankRecords() {
+  const sessions = (db.reconSessions || []);
+  const container = document.getElementById('bank-records-list');
+  if (!sessions.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🏦</div><p>No bank statements have been published yet.<br>Admin can publish statements via the Reconcile tab.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = sessions.map((s, si) => {
+    const matched   = s.rows.filter(r => r.status === 'matched').length;
+    const linked    = s.rows.filter(r => r.status === 'linked').length;
+    const unmatched = s.rows.filter(r => r.status === 'unmatched').length;
+    const ignored   = s.rows.filter(r => r.status === 'ignored').length;
+    const totalIn   = s.rows.filter(r => r.amount !== null && r.amount > 0).reduce((a, r) => a + r.amount, 0);
+    const totalOut  = s.rows.filter(r => r.amount !== null && r.amount < 0).reduce((a, r) => a + Math.abs(r.amount), 0);
+
+    const rows = s.rows.map(r => {
+      const amtPos = r.amount !== null && r.amount >= 0;
+      const amtStr = r.amount !== null
+        ? `<span class="${amtPos ? 'pos' : 'neg'}" style="font-weight:700">${amtPos ? '+' : '-'}${fmt(Math.abs(r.amount))}</span>`
+        : '—';
+      let statusCell = '';
+      if (r.status === 'matched' || r.status === 'linked') {
+        statusCell = `<span class="chip ${r.status === 'matched' ? 'chip-green' : 'chip-gold'}">${r.status === 'matched' ? '✓ Matched' : '🔗 Linked'}</span>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px">${r.memberName ? r.memberName + ' · ' : ''}${r.txType || ''}</div>`;
+      } else if (r.status === 'ignored') {
+        statusCell = `<span class="chip chip-grey">— Other</span>`;
+      } else {
+        statusCell = `<span class="chip chip-red">? Unmatched</span>`;
+      }
+      return `<tr>
+        <td style="font-size:13px;white-space:nowrap">${r.dateStr}</td>
+        <td style="font-size:13px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.desc||'').replace(/"/g,'&quot;')}">${r.desc || ''}</td>
+        <td style="white-space:nowrap">${amtStr}</td>
+        <td>${statusCell}</td>
+      </tr>`;
+    }).join('');
+
+    const isAdmin = currentSession && currentSession.role === 'admin';
+    return `<div class="card" style="margin-bottom:16px">
+      <div class="section-header" style="margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:700">${s.label}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:3px">
+            Published ${fmtDate(s.savedAt)} by ${s.savedBy} &nbsp;·&nbsp;
+            ${s.rows.length} entries &nbsp;·&nbsp;
+            <span class="pos">In: ${fmt(totalIn)}</span> &nbsp;
+            <span class="neg">Out: ${fmt(totalOut)}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="chip chip-green">✓ ${matched}</span>
+          <span class="chip chip-gold">🔗 ${linked}</span>
+          <span class="chip chip-red">? ${unmatched}</span>
+          <span class="chip chip-grey">— ${ignored}</span>
+          ${isAdmin ? `<button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteBankSession('${s.id}')">🗑</button>` : ''}
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteBankSession(id) {
+  document.getElementById('confirm-msg').textContent = 'Remove this published bank statement? Members will no longer be able to view it.';
+  document.getElementById('confirm-btn').onclick = () => {
+    db.reconSessions = (db.reconSessions || []).filter(s => s.id !== id);
+    save(db);
+    closeModal('modal-confirm');
+    renderBankRecords();
+    showToast('Bank statement removed', 'info');
+  };
+  openModal('modal-confirm');
+}
+
+function deleteAllBankRecords() {
+  document.getElementById('confirm-msg').textContent = 'Remove ALL published bank statements? This cannot be undone.';
+  document.getElementById('confirm-btn').onclick = () => {
+    db.reconSessions = [];
+    save(db);
+    closeModal('modal-confirm');
+    renderBankRecords();
+    showToast('All bank records cleared', 'info');
+  };
+  openModal('modal-confirm');
+}
+
+// Restore persisted session now that db is loaded
+if (window._restoreSession) {
+  // Re-validate: if member, ensure they still exist and have a PIN
+  const sess = window._restoreSession;
+  let valid = false;
+  if (sess.role === 'admin') {
+    valid = true;
+  } else if (sess.role === 'member' && sess.memberId) {
+    const m = getMemberById(sess.memberId);
+    valid = !!m && !!m.pin;
+    if (valid) sess.name = m.name; // refresh name in case it changed
+  }
+  if (valid) { applySession(sess); }
+  else { sessionStorage.removeItem(SESS_KEY); }
+} else {
+  renderDashboard();
+}
+</script>
+</body>
+</html>
